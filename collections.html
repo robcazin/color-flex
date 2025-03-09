@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Collections</title>
+    <script src="./js/airtable.browser.min.js"></script>
+    <style>
+        #records-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .record {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .record img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 3px;
+            margin: 5px 0;
+        }
+        .field {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .field strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="records-container"></div>
+    <script>
+        window.onload = function() {
+            if (typeof window.Airtable === 'undefined') {
+                console.error('Airtable library not loaded. Check CDN or network.');
+            } else {
+                console.log('Airtable library loaded: function');
+                loadCollections();
+            }
+        };
+
+        function loadCollections() {
+            const airtable = new Airtable({ apiKey: 'patFtSWH6rXymvmio.c4b5cf40de13b1c3f8468c169a391dd4bfd49bb4d0079220875703ff5affe7c3' });
+            const base = airtable.base('appsywaKYiyKQTnl3');
+            const container = document.getElementById('records-container');
+
+            ['5 - FARMHOUSE'].forEach(tableName => {
+                console.log(`Fetching data for table: ${tableName}`);
+                base(tableName).select({
+                    filterByFormula: '{LAYER SEPARATIONS} != ""',
+                    fields: ['NUMBER', 'NAME', 'THUMBNAIL', 'LAYER SEPARATIONS', 'CURATED COLORS', 'COORDINATE PRINTS'],
+                    view: 'SAFFRON COTTAGE PRODUCTS'
+                }).firstPage((err, records) => {
+                    if (err) {
+                        console.error(`Error loading ${tableName}:`, JSON.stringify(err, null, 2));
+                        return;
+                    }
+                    if (!records || records.length === 0) {
+                        console.log(`No records found for ${tableName}`);
+                        container.innerHTML = '<p>No records found.</p>';
+                    } else {
+                        records.forEach(record => {
+                            console.log(JSON.stringify(record.fields, null, 2));
+                            const fields = record.fields;
+                            const thumbnailUrl = fields.THUMBNAIL && fields.THUMBNAIL.length > 0 ? fields.THUMBNAIL[0].url : '';
+                            const layerSeps = fields['LAYER SEPARATIONS'] && fields['LAYER SEPARATIONS'].length > 0 
+                                ? fields['LAYER SEPARATIONS'].map(item => `<img src="${item.url}" alt="${fields.NAME || ''}">`).join('') 
+                                : 'None';
+                            const coordPrints = fields['COORDINATE PRINTS'] && fields['COORDINATE PRINTS'].length > 0 
+                                ? fields['COORDINATE PRINTS'].map(item => `<img src="${item.url}" alt="${fields.NAME || ''} Coordinate">`).join('') 
+                                : 'None';
+                            const div = document.createElement('div');
+                            div.className = 'record';
+                            div.innerHTML = `
+                                <div class="field"><strong>Number:</strong> ${fields.NUMBER || ''}</div>
+                                <div class="field"><strong>Name:</strong> ${fields.NAME || ''}</div>
+                                <div class="field"><strong>Thumbnail:</strong> ${thumbnailUrl ? `<img src="${thumbnailUrl}" alt="${fields.NAME || ''}">` : 'No image'}</div>
+                                <div class="field"><strong>Layer Separations:</strong> ${layerSeps}</div>
+                                <div class="field"><strong>Curated Colors:</strong> ${fields['CURATED COLORS'] || 'None'}</div>
+                                <div class="field"><strong>Coordinate Prints:</strong> ${coordPrints}</div>
+                            `;
+                            container.appendChild(div);
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to ColorFlex</title>
+    <link rel="stylesheet" href="styles2.css"> <!-- Keep your existing styles -->
+    <style>
+        /* Centering content */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2A2A2A; /* Match your theme */
+            color: white;
+            text-align: center;
+            font-family: "Special Elite", serif;
+        }
+
+        .launch-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: rgb(243, 230, 212);
+        }
+
+        .launch-btn {
+            background-color: #6B4226;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .launch-btn:hover {
+            background-color: #8D6E63;
+        }
+    </style>
+</head>
+<body>
+    <div class="launch-container">
+        <h1>Welcome to ColorFlex</h1>
+        <button class="launch-btn" onclick="openApp()">Launch App</button>
+    </div>
+
+    <script>
+        function openApp() {
+            let newWindow = window.open('collections.html', '_blank', 'width=2210,height=1220,top=100,left=100');
+
+            if (newWindow) {
+                setTimeout(() => {
+                    let uiOverheadWidth = newWindow.outerWidth - newWindow.innerWidth;
+                    let uiOverheadHeight = newWindow.outerHeight - newWindow.innerHeight;
+
+                    // Adjust the window size to match EXACTLY 2210x1220 content area
+                    newWindow.resizeTo(2210 + uiOverheadWidth, 1220 + uiOverheadHeight);
+                }, 500); // Delay ensures window is fully initialized
+            } else {
+                console.warn("New window was blocked by the browser. Please allow popups for this site.");
+                alert("Please allow popups to launch the ColorFlex app. You can manually navigate to collections.html and resize to 2210x1220.");
+            }
+        }
+
+        // Reset popup settings on page load
+        localStorage.removeItem("hidePopup");
+        localStorage.removeItem("hideLayerPopup");
+        console.log("🔄 Popup settings reset on launch.");
+        
+    </script>
+</body>
+</html>

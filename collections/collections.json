@@ -1,0 +1,1225 @@
+{
+  "collections": [
+    {
+      "name": "bombay",
+      "curatedColors": [
+        "iron ore",
+        "cityscape",
+        "foothills",
+        "ecru",
+        "rustic city",
+        "oyster bay",
+        "dried thyme",
+        "slate tile",
+        "toile red"
+      ],
+      "patterns": [
+        {
+          "name": "101-andheri-star-flower",
+          "thumbnail": "thumbnails/101-andheri-star-flower-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "yes",
+          "layers": [
+            "layers/101-andheri-star-flower-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "102-balalore",
+          "thumbnail": "thumbnails/102-balalore-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/102-balalore-layer-1.png",
+            "layers/102-balalore-layer-2.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "103-chakapara-diamond",
+          "thumbnail": "thumbnails/103-chakapara-diamond-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "yes",
+          "layers": [
+            "layers/103-chakapara-diamond-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "104-delhi-large",
+          "thumbnail": "thumbnails/104-delhi-large-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "yes",
+          "layers": [
+            "layers/104-delhi-large-repeat-layer-1.png",
+            "layers/104-delhi-large-repeat-layer-2.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "104-delhi-mini",
+          "thumbnail": "thumbnails/104-delhi-mini-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/104-delhi-mini-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "105-garhi",
+          "thumbnail": "thumbnails/105-garhi-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/105-garhi-layer-1.png",
+            "layers/105-garhi-layer-2.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "106-harchandi",
+          "thumbnail": "thumbnails/106-harchandi-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/106-harchandi-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "107-indore-vine",
+          "thumbnail": "thumbnails/107-indore-vine-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/107-indore-vine-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "108-jaipur-weeping-flower",
+          "thumbnail": "thumbnails/108-jaipur-weeping-flower-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "yes",
+          "layers": [
+            "layers/108-jaipur-weeping-flower-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "109-kitanelli-vine",
+          "thumbnail": "thumbnails/109-kitanelli-vine-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/109-kitanelli-vine-layer-1.png",
+            "layers/109-kitanelli-vine-layer-2.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "110a-loni",
+          "thumbnail": "thumbnails/110a-loni-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/110a-loni-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "111-mumbai",
+          "thumbnail": "thumbnails/111-mumbai-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/111-mumbai-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "112-new-delhi",
+          "thumbnail": "thumbnails/112-new-delhi-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/112-new-delhi-layer-1.png",
+            "layers/112-new-delhi-layer-2.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "113a-oulgareti",
+          "thumbnail": "thumbnails/113a-oulgareti-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/113a-oulgareti-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "114-patina",
+          "thumbnail": "thumbnails/114-patina-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/114-patina-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "115-raipur-pomegrannet-trellis",
+          "thumbnail": "thumbnails/115-raipur-pomegrannet-trellis-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/115-raipur-pomegrannet-trellis-layer-1.png",
+            "layers/115-raipur-pomegrannet-trellis-layer-2.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "116-saino-quad-floral",
+          "thumbnail": "thumbnails/116-saino-quad-floral-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/116-saino-quad-floral-layer-1.png",
+            "layers/116-saino-quad-floral-layer-2.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "117-tribeni",
+          "thumbnail": "thumbnails/117-tribeni-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/117-tribeni-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "118-vadodara-indian-doiley",
+          "thumbnail": "thumbnails/118-vadodara-indian-doiley-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/118-vadodara-indian-doiley-layer-1.png",
+            "layers/118-vadodara-indian-doiley-layer-2.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "119-yelahanka",
+          "thumbnail": "thumbnails/119-yelahanka-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/119-yelahanka-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "120-zamara-desert-birds",
+          "thumbnail": "thumbnails/120-zamara-desert-birds-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/120-zamara-desert-birds-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "125a-bombay-trellis",
+          "thumbnail": "thumbnails/125a-bombay-trellis-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/125a-bombay-trellis-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "126-gingham-plaid-level-1",
+          "thumbnail": "thumbnails/126-gingham-plaid-level-1-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/126-gingham-plaid-level-1-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "130-trenton-ticking",
+          "thumbnail": "thumbnails/130-trenton-ticking-thumbnail.png",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/130-trenton-ticking-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "farmhouse",
+      "curatedColors": [
+        "creamy","iron ore","cityscape","foothills","ecru","rustic city","oyster bay",
+        "dried thyme","slate tile","toile red"
+      ],
+      "patterns": [
+        {
+          "name": "109-lancaster-tole",
+          "thumbnail": "thumbnails/109-lancaster-tole.jpg",
+          "aspect": "24x24",
+          "repeat": "yes",
+          "layers": [
+            "layers/109-lancaster-tole-layer-1.png",
+            "layers/109-lancaster-tole-layer-2.png",
+            "layers/109-lancaster-tole-layer-3.png",
+            "layers/109-lancaster-tole-layer-4.png",
+            "layers/109-lancaster-tole-layer-5.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "102-root-vegetables",
+          "thumbnail": "thumbnails/102-root-vegetables.jpg",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/101-andheri-star-flower-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "103-root-veggies-on-paper-scraps",
+          "thumbnail": "thumbnails/103-root-veggies-on-paper-scraps.jpg",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/101-andheri-star-flower-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "117-laundry-daze",
+          "thumbnail": "thumbnails/117-laundry-daze.jpg",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/101-andheri-star-flower-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        },
+        {
+          "name": "101-farm-toile",
+          "thumbnail": "thumbnails/101-farm-toile.jpg",
+          "aspect": "24x24",
+          "repeat": "no",
+          "layers": [
+            "layers/101-andheri-star-flower-layer-1.png"
+          ],
+          "designerColors": [
+            "iron ore","ecru","rustic city",
+            "toile red","oyster bay","slate tile"
+          ],    
+          "layerLabels": [
+            "Background", 
+            "Floral",     
+            "Leaves",     
+            "Vines",      
+            "Accents",   
+            "Details"    
+          ],
+          "coordinates": [
+            {
+              "collection": "bombay",
+              "pattern": "104-delhi-large",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "112-new-delhi",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "116-saino-quad-floral",
+              "recommendedscale": 40
+            },            {
+              "collection": "bombay",
+              "pattern": "107-indore-vine",
+              "recommendedscale": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "abundance"
+    },
+    {
+      "name": "ancient-tiles"
+    },
+    {
+      "name": "botanicals"
+    },
+    {
+      "name": "dished-up"
+    },
+    {
+      "name": "galleria"
+    },
+    {
+      "name": "english-country"
+    },
+    {
+      "name": "galleria"
+    },
+    {
+      "name": "papers"
+    }
+  ]
+}
