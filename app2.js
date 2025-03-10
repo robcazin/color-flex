@@ -178,7 +178,8 @@ const createColorInput = (labelText, id, initialColor, isBackground = false) => 
     container.className = "layer-input-container";
     const label = document.createElement("div");
     label.className = "layer-label";
-    label.textContent = labelText;
+    label.textContent = labelText || "Unknown Layer"; // Fallback label
+    console.log(`Creating color input with label: ${labelText}, ID: ${id}`); // Debug
     const circle = document.createElement("div");
     circle.className = "circle-input";
     circle.id = `${id}Circle`;
@@ -186,7 +187,7 @@ const createColorInput = (labelText, id, initialColor, isBackground = false) => 
     input.type = "text";
     input.className = "layer-input";
     input.id = id;
-    input.placeholder = `Enter ${labelText.toLowerCase()} color`; // Line 189: Error here
+    input.placeholder = `Enter ${labelText ? labelText.toLowerCase() : 'layer'} color`;
     input.value = toInitialCaps(initialColor || "Snowbound");
     circle.style.backgroundColor = getColorHex(input.value);
     container.append(label, circle, input);
@@ -311,7 +312,6 @@ const handlePatternSelection = (patternName) => {
     );
     if (!appState.selectedPattern) {
         console.error(`Pattern "${patternName}" not found in ${appState.selectedCollection.name}`);
-        // Fallback to first pattern with layers
         appState.selectedPattern = appState.selectedCollection.patterns[0];
         console.warn(`Falling back to first pattern: ${appState.selectedPattern?.name || 'None'}`);
         if (!appState.selectedPattern) {
@@ -322,7 +322,6 @@ const handlePatternSelection = (patternName) => {
 
     console.log("Selected pattern:", appState.selectedPattern);
     
-    // Determine background color
     let backgroundColor;
     if (appState.selectedPattern.curatedColors && appState.selectedPattern.curatedColors.length > 0) {
         backgroundColor = appState.selectedPattern.curatedColors[0];
@@ -333,11 +332,9 @@ const handlePatternSelection = (patternName) => {
             : "#ffffff";
     }
 
-    // Update state
     currentPattern = appState.selectedPattern;
     currentLayers = [];
 
-    // Add background layer
     const backgroundLayer = {
         imageUrl: null,
         color: backgroundColor,
@@ -345,27 +342,37 @@ const handlePatternSelection = (patternName) => {
     };
     currentLayers.push(backgroundLayer);
 
-    // Add all overlay layers with derived names
     const overlayLayers = appState.selectedPattern.layers || [];
-overlayLayers.forEach((layerUrl, index) => {
-    const filename = layerUrl.split('/').pop();
-    const layerDescription = filename
-        .split(' - ')
-        .slice(2)
-        .join(' - ')
-        .replace('.jpg', '')
-        .trim();
-    const label = layerDescription || `Layer ${index + 1}`;
-    currentLayers.push({
-        imageUrl: layerUrl,
-        color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
-        label: label
+    overlayLayers.forEach((layerUrl, index) => {
+        const filename = layerUrl.split('/').pop();
+        const layerDescription = filename
+            .split(' - ')
+            .slice(2)
+            .join(' - ')
+            .replace('.jpg', '')
+            .trim();
+        const label = layerDescription || `Layer ${index + 1}`;
+        console.log(`Derived label for layer ${index + 1} from "${filename}": "${label}"`); // Debug
+        currentLayers.push({
+            imageUrl: layerUrl,
+            color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
+            label: label
+        });
     });
-});
-appState.cachedLayerPaths = currentLayers.slice(1).map(layer => ({
-    url: layer.imageUrl,
-    name: layer.label
-}));
+
+    console.log("Total layers (including background):", currentLayers.length);
+    console.log("Overlay layers with names:", currentLayers.slice(1).map(l => l.label));
+
+    appState.layerInputs = [];
+    createColorInput("Background", "bgColorInput", backgroundColor, true);
+    currentLayers.slice(1).forEach((layer, index) => {
+        createColorInput(layer.label, `layer${index + 1}ColorInput`, layer.color);
+    });
+
+    appState.cachedLayerPaths = currentLayers.slice(1).map(layer => ({
+        url: layer.imageUrl,
+        name: layer.label
+    }));
     console.log("Cached layer paths:", appState.cachedLayerPaths);
 
     if (dom.patternName) dom.patternName.textContent = appState.selectedPattern.name;
