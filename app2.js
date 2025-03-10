@@ -1,4 +1,4 @@
-console.log("Running app2.js version: CLEAN_2025-03-04_v19");
+console.log("Running app2.js version: CLEAN_2025-03-10_v21");
 
 // Add to your global scope or appState
 let currentPattern = null;
