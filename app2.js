@@ -135,18 +135,7 @@ const loadAirtableData = async (tableName, options = {}) => {
                 reject(err);
             } else {
                 console.log(`Loaded ${records.length} records from ${tableName}`);
-                const mappedRecords = records.map(record => {
-                    console.log(`Raw LAYER SEPARATIONS for ${record.fields.NAME}:`, record.fields['LAYER SEPARATIONS']); // Debug
-                    return {
-                        id: record.id,
-                        name: record.fields.NAME,
-                        number: record.fields.NUMBER,
-                        collection: record.fields.COLLECTION,
-                        layers: record.fields['LAYER SEPARATIONS'] ? record.fields['LAYER SEPARATIONS'].map(attachment => attachment.url) : [],
-                        curatedColors: record.fields['CURATED COLORS'] ? record.fields['CURATED COLORS'].split(',').map(c => c.trim()) : []
-                    };
-                });
-                resolve(mappedRecords);
+                resolve(records);
             }
         });
     });
@@ -197,7 +186,7 @@ const createColorInput = (labelText, id, initialColor, isBackground = false) => 
     input.type = "text";
     input.className = "layer-input";
     input.id = id;
-    input.placeholder = `Enter ${labelText.toLowerCase()} color`;
+    input.placeholder = `Enter ${labelText.toLowerCase()} color`; // Line 189: Error here
     input.value = toInitialCaps(initialColor || "Snowbound");
     circle.style.backgroundColor = getColorHex(input.value);
     container.append(label, circle, input);
@@ -294,7 +283,7 @@ const loadThumbnails = (patterns) => {
         thumbDiv.className = "thumbnail";
         thumbDiv.dataset.patternId = pattern.id;
         const img = document.createElement("img");
-        img.src = pattern.thumbnail || "/images/no-thumbnail.png"; // Local fallback image
+        img.src = pattern.thumbnail || "https://placehold.co/150x150?text=No+Thumbnail"; // Use a reliable fallback
         if (!pattern.thumbnail) {
             console.warn(`Using fallback thumbnail for pattern ${pattern.name}`);
         }
@@ -356,28 +345,27 @@ const handlePatternSelection = (patternName) => {
     };
     currentLayers.push(backgroundLayer);
 
-    // Add all overlay layers with position-based labels
+    // Add all overlay layers with derived names
     const overlayLayers = appState.selectedPattern.layers || [];
-    overlayLayers.forEach((layerUrl, index) => {
-        const label = `layer-${index + 1}`; // Position-based label (Layer 1, Layer 2, etc.)
-        currentLayers.push({
-            imageUrl: layerUrl,
-            color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
-            label: label
-        });
+overlayLayers.forEach((layerUrl, index) => {
+    const filename = layerUrl.split('/').pop();
+    const layerDescription = filename
+        .split(' - ')
+        .slice(2)
+        .join(' - ')
+        .replace('.jpg', '')
+        .trim();
+    const label = layerDescription || `Layer ${index + 1}`;
+    currentLayers.push({
+        imageUrl: layerUrl,
+        color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
+        label: label
     });
-
-    console.log("Total layers (including background):", currentLayers.length);
-    console.log("Overlay layers:", overlayLayers);
-
-    // Update appState
-    appState.layerInputs = [];
-    createColorInput("Background", "bgColorInput", backgroundColor, true); // Create background input
-    currentLayers.slice(1).forEach((layer, index) => {
-        createColorInput(`Layer ${index + 1}`, `layer${index + 1}ColorInput`, layer.color);
-    });
-
-    appState.cachedLayerPaths = currentLayers.slice(1).map(layer => ({ url: layer.imageUrl }));
+});
+appState.cachedLayerPaths = currentLayers.slice(1).map(layer => ({
+    url: layer.imageUrl,
+    name: layer.label
+}));
     console.log("Cached layer paths:", appState.cachedLayerPaths);
 
     if (dom.patternName) dom.patternName.textContent = appState.selectedPattern.name;
@@ -433,20 +421,28 @@ const populateCuratedColors = (colors) => {
     console.log("Finished populating curated colors, total:", colors.length);
 };
 
-const populateLayerInputs = (colors) => {
-    console.log("Populating layer inputs with colors:", colors);
-    if (!dom.layerInputsContainer) {
-        console.error("layerInputsContainer not found in DOM");
-        return;
-    }
+const populateLayerInputs = (curatedColors) => {
+    const totalLayerCount = appState.cachedLayerPaths.length + 1;
+    console.log(`Populating inputs for ${totalLayerCount} layers`);
+    console.log("Cached layer paths for inputs:", appState.cachedLayerPaths); // Debug
     dom.layerInputsContainer.innerHTML = "";
     appState.layerInputs = [];
+    createColorInput("Background", "bgColorInput", curatedColors[0], true); // Background input
 
-    const layerLabels = ["Background", ...appState.cachedLayerPaths.map((layer) => layer.name)];
-    layerLabels.forEach((label, index) => {
-        const color = colors[index] || (index === 0 ? "Iron Ore" : "Snowbound");
-        createColorInput(label, `layer${index}`, color, index === 0);
+    // Populate layer inputs with derived names
+    appState.cachedLayerPaths.forEach((layer, index) => {
+        const label = layer.name || `Layer ${index + 1}`; // Use derived name
+        console.log(`Creating input for layer ${index + 1} with label: ${label}`); // Debug
+        const colorIndex = index + 1; // Offset for curatedColors
+        const initialColor = curatedColors[colorIndex] || "#000000"; // Fallback color
+        createColorInput(label, `layer${index + 1}ColorInput`, initialColor);
     });
+
+    console.log("Layer inputs:", appState.layerInputs.map(input => ({
+        id: input.input.id,
+        label: input.input.previousSibling.textContent,
+        value: input.input.value
+    })));
 };
 
 const populateCoordinates = (coordinates) => {
@@ -729,6 +725,7 @@ const initialize = async () => {
                 filterByFormula: "AND({LAYER SEPARATIONS} != '', RIGHT({NUMBER}, 3) != '100')",
                 view: "SAFFRON COTTAGE PRODUCTS",
             });
+            console.log("Records:", records);
             console.log("First record fields:", records[0]?.fields);
 
             const curatedColorsRaw = records.length > 0 && records[0]?.fields?.["CURATED COLORS"]
@@ -743,13 +740,13 @@ const initialize = async () => {
 
             const patternsForCollection = records.map(record => {
                 const recordFields = record.fields || {};
-                console.log(`Raw fields for record ${record.id}:`, recordFields); // Debug
-                const rawName = recordFields.NAME || recordFields.Name || "Unknown Pattern"; // Try both NAME and Name
+                console.log(`Field names for record ${record.id}:`, Object.keys(recordFields));
+                const rawName = recordFields.Name || recordFields.NAME || recordFields.name || "Unknown Pattern"; // Use Name
                 const derivedName = rawName
                     .replace(/^\d+[A-Z]*\d*\s*-\s*/, '') // Remove prefix like "109M1 - "
                     .replace(/\s*-\s*(MULTIPLE COLORS VERSION \d+|LAYER SEPARATIONS|DESIGN|PATTERN|COLOR SEPARATIONS|.*24X24.*)$/i, '') // Remove suffixes
                     .trim();
-                console.log(`Derived name for "${rawName}": "${derivedName}"`); // Debug
+                console.log(`Derived name for "${rawName}": "${derivedName}"`);
                 return {
                     id: record.id,
                     rawName: rawName,
@@ -866,6 +863,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
         startApp(collectionsData);
+
+        // Add thumbnail click handler
+        document.querySelectorAll(".thumbnail").forEach(thumb => {
+            thumb.addEventListener("click", () => {
+                const patternId = thumb.dataset.patternId;
+                console.log("Thumbnail clicked, pattern ID:", patternId);
+                const pattern = appState.selectedCollection.patterns.find(p => p.id === patternId);
+                if (pattern) {
+                    const derivedPatternName = pattern.name; // Use derived name
+                    console.log("Selected pattern name:", derivedPatternName);
+                    handlePatternSelection(derivedPatternName);
+                } else {
+                    console.error("Pattern not found for ID:", patternId);
+                }
+            });
+        });
     } catch (error) {
         console.error("Error in DOMContentLoaded handler:", error);
     }
