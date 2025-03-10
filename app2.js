@@ -1,5 +1,81 @@
 console.log("Running app2.js version: CLEAN_2025-03-04_v19");
 
+// Add to your global scope or appState
+let currentPattern = null;
+let currentLayers = [];
+let patterns = []; // Populated by initialize
+
+
+
+
+document.querySelectorAll(".thumbnail").forEach(thumb => {
+    thumb.addEventListener("click", () => {
+        const patternId = thumb.dataset.patternId;
+        console.log("Thumbnail clicked, pattern ID:", patternId);
+
+        const selectedPattern = patterns.find(p => p.id === patternId);
+        if (!selectedPattern) {
+            console.error("Pattern not found for ID:", patternId);
+            return;
+        }
+
+        console.log("Selected pattern:", selectedPattern.name);
+        console.log("LAYER SEPARATIONS:", selectedPattern.layers);
+
+        // Determine background color
+        let backgroundColor;
+        if (selectedPattern.curatedColors && selectedPattern.curatedColors.length > 0) {
+            backgroundColor = selectedPattern.curatedColors[0];
+        } else {
+            const topRow = patterns.find(p => p.number && p.number.endsWith("-100") && p.collection === selectedPattern.collection);
+            backgroundColor = topRow && topRow.curatedColors && topRow.curatedColors.length > 0
+                ? topRow.curatedColors[0]
+                : "#ffffff";
+        }
+
+        // Update state
+        currentPattern = selectedPattern;
+        currentLayers = [];
+
+        // Add background layer
+        const backgroundLayer = {
+            imageUrl: null,
+            color: backgroundColor,
+            label: "background"
+        };
+        currentLayers.push(backgroundLayer);
+
+        // Add overlay layers with position-based labels
+        const overlayLayers = selectedPattern.layers || [];
+        overlayLayers.forEach((layerUrl, index) => {
+            const label = `layer-${index + 1}`; // Position-based label (Layer 1, Layer 2, etc.)
+
+            currentLayers.push({
+                imageUrl: layerUrl,
+                color: selectedPattern.curatedColors[index + 1] || "#000000",
+                label: label
+            });
+        });
+
+        console.log("Total layers (including background):", currentLayers.length);
+        console.log("Overlay layers:", overlayLayers);
+
+        // Update appState
+        appState.layerInputs = [];
+        createColorInput("Background", "bgColorInput", backgroundColor, true);
+        currentLayers.slice(1).forEach((layer, index) => {
+            createColorInput(`Layer ${index + 1}`, `layer${index + 1}ColorInput`, layer.color);
+        });
+
+        appState.cachedLayerPaths = currentLayers.slice(1).map(layer => ({ url: layer.imageUrl }));
+        console.log("Updated cachedLayerPaths:", appState.cachedLayerPaths);
+
+  
+      // Trigger preview update
+      updatePreview();
+    });
+  });
+
 const loadJSON = async (url) => {
     try {
         const response = await fetch(url);
@@ -59,7 +135,18 @@ const loadAirtableData = async (tableName, options = {}) => {
                 reject(err);
             } else {
                 console.log(`Loaded ${records.length} records from ${tableName}`);
-                resolve(records);
+                const mappedRecords = records.map(record => {
+                    console.log(`Raw LAYER SEPARATIONS for ${record.fields.NAME}:`, record.fields['LAYER SEPARATIONS']); // Debug
+                    return {
+                        id: record.id,
+                        name: record.fields.NAME,
+                        number: record.fields.NUMBER,
+                        collection: record.fields.COLLECTION,
+                        layers: record.fields['LAYER SEPARATIONS'] ? record.fields['LAYER SEPARATIONS'].map(attachment => attachment.url) : [],
+                        curatedColors: record.fields['CURATED COLORS'] ? record.fields['CURATED COLORS'].split(',').map(c => c.trim()) : []
+                    };
+                });
+                resolve(mappedRecords);
             }
         });
     });
@@ -200,18 +287,20 @@ const showPopupMessage = (message, storageKey) => {
 
 // Core Logic
 const loadThumbnails = (patterns) => {
-    if (!dom.collectionThumbnails) {
-        console.error("collectionThumbnails not found in DOM");
-        return;
-    }
-    dom.collectionThumbnails.innerHTML = "";
-    patterns.forEach((pattern) => {
+    const thumbnailsContainer = dom.collectionThumbnails;
+    thumbnailsContainer.innerHTML = "";
+    patterns.forEach(pattern => {
+        const thumbDiv = document.createElement("div");
+        thumbDiv.className = "thumbnail";
+        thumbDiv.dataset.patternId = pattern.id;
         const img = document.createElement("img");
-        img.src = pattern.fields.THUMBNAIL?.[0]?.url || 'placeholder.jpg';
-        img.alt = pattern.fields.NAME.split('-')[0].trim();
-        img.className = "thumbnail";
-        img.addEventListener("click", () => handlePatternSelection(pattern.fields.NAME.split('-')[0].trim()));
-        dom.collectionThumbnails.appendChild(img);
+        img.src = pattern.thumbnail || "/images/no-thumbnail.png"; // Local fallback image
+        if (!pattern.thumbnail) {
+            console.warn(`Using fallback thumbnail for pattern ${pattern.name}`);
+        }
+        img.alt = pattern.name || "Unknown Pattern";
+        thumbDiv.appendChild(img);
+        thumbnailsContainer.appendChild(thumbDiv);
     });
 };
 
@@ -229,21 +318,69 @@ const handleCollectionSelection = (collection) => {
 const handlePatternSelection = (patternName) => {
     console.log(`Attempting to select pattern: ${patternName}`);
     appState.selectedPattern = appState.selectedCollection.patterns.find(
-        (p) => p.fields.NAME.split('-')[0].trim().toUpperCase() === patternName.toUpperCase()
+        (p) => p.name.toUpperCase() === patternName.toUpperCase()
     );
     if (!appState.selectedPattern) {
         console.error(`Pattern "${patternName}" not found in ${appState.selectedCollection.name}`);
-        return;
+        // Fallback to first pattern with layers
+        appState.selectedPattern = appState.selectedCollection.patterns[0];
+        console.warn(`Falling back to first pattern: ${appState.selectedPattern?.name || 'None'}`);
+        if (!appState.selectedPattern) {
+            console.error("No patterns available in collection");
+            return;
+        }
     }
 
-    console.log("Pattern fields:", appState.selectedPattern.fields);
-    appState.cachedLayerPaths = [{
-        url: appState.selectedPattern.fields["LAYER SEPARATIONS"]?.[0]?.url || 'https://via.placeholder.com/300',
-        name: "Layer 1"
-    }];
+    console.log("Selected pattern:", appState.selectedPattern);
+    
+    // Determine background color
+    let backgroundColor;
+    if (appState.selectedPattern.curatedColors && appState.selectedPattern.curatedColors.length > 0) {
+        backgroundColor = appState.selectedPattern.curatedColors[0];
+    } else {
+        const topRow = appState.selectedCollection.patterns.find(p => p.number && p.number.endsWith("-100") && p.collection === appState.selectedPattern.collection);
+        backgroundColor = topRow && topRow.curatedColors && topRow.curatedColors.length > 0
+            ? topRow.curatedColors[0]
+            : "#ffffff";
+    }
+
+    // Update state
+    currentPattern = appState.selectedPattern;
+    currentLayers = [];
+
+    // Add background layer
+    const backgroundLayer = {
+        imageUrl: null,
+        color: backgroundColor,
+        label: "background"
+    };
+    currentLayers.push(backgroundLayer);
+
+    // Add all overlay layers with position-based labels
+    const overlayLayers = appState.selectedPattern.layers || [];
+    overlayLayers.forEach((layerUrl, index) => {
+        const label = `layer-${index + 1}`; // Position-based label (Layer 1, Layer 2, etc.)
+        currentLayers.push({
+            imageUrl: layerUrl,
+            color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
+            label: label
+        });
+    });
+
+    console.log("Total layers (including background):", currentLayers.length);
+    console.log("Overlay layers:", overlayLayers);
+
+    // Update appState
+    appState.layerInputs = [];
+    createColorInput("Background", "bgColorInput", backgroundColor, true); // Create background input
+    currentLayers.slice(1).forEach((layer, index) => {
+        createColorInput(`Layer ${index + 1}`, `layer${index + 1}ColorInput`, layer.color);
+    });
+
+    appState.cachedLayerPaths = currentLayers.slice(1).map(layer => ({ url: layer.imageUrl }));
     console.log("Cached layer paths:", appState.cachedLayerPaths);
 
-    if (dom.patternName) dom.patternName.textContent = appState.selectedPattern.fields.NAME.split('-')[0].trim();
+    if (dom.patternName) dom.patternName.textContent = appState.selectedPattern.name;
 
     const curatedColors = appState.selectedCollection.curatedColors || fallbackCuratedColors;
     console.log("Collection curated colors:", curatedColors);
@@ -251,7 +388,7 @@ const handlePatternSelection = (patternName) => {
     try {
         populateLayerInputs(curatedColors);
         populateCuratedColors(curatedColors);
-        populateCoordinates(appState.selectedPattern.fields["COORDINATE PRINTS"] || []);
+        populateCoordinates(appState.selectedPattern.coordinatePrints || []);
         updateDisplays();
     } catch (error) {
         console.error("Error in handlePatternSelection:", error);
@@ -402,6 +539,9 @@ const updatePreview = () => {
             });
         });
     });
+
+    // Log total layers for debugging
+    console.log("Total layers rendered:", appState.cachedLayerPaths.length + 1); // +1 for background
 };
 
 const updateRoomMockup = () => {
@@ -475,7 +615,7 @@ const updateRoomMockup = () => {
 };
 
 // Updated processImage function with contrast maximization
-const processImage = (url, callback, gamma = 2.2) => {
+const processImage = (url, callback, layerColor = '#7f817e', gamma = 2.2) => {
     const img = new Image();
     img.crossOrigin = "Anonymous";
     img.src = url;
@@ -486,10 +626,8 @@ const processImage = (url, callback, gamma = 2.2) => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
-        // Use the image's original resolution
         const width = img.width;
         const height = img.height;
-
         canvas.width = width;
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
@@ -497,50 +635,54 @@ const processImage = (url, callback, gamma = 2.2) => {
         const imageData = ctx.getImageData(0, 0, width, height);
         const data = imageData.data;
 
-        let minLuminance = 255, maxLuminance = 0;
+        console.log("Original Sample (R,G,B,A):", data[0], data[1], data[2], data[3]);
 
-        // Step 1: Compute luminance and find min/max values
+        let minLuminance = 255, maxLuminance = 0;
         for (let i = 0; i < data.length; i += 4) {
             const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
             minLuminance = Math.min(minLuminance, luminance);
             maxLuminance = Math.max(maxLuminance, luminance);
         }
 
-        console.log("Min Luminance:", minLuminance);
-        console.log("Max Luminance:", maxLuminance);
-        console.log("Original Resolution:", width, "x", height);
+        console.log("Min Luminance:", minLuminance, "Max Luminance:", maxLuminance);
 
-        const range = maxLuminance - minLuminance;
+        const range = maxLuminance - minLuminance || 1; // Avoid division by zero
 
-        // Step 2: Adaptive contrast preservation & inversion
+        // Parse the layer color (hex to RGB)
+        const hex = layerColor.replace("#", "");
+        const rLayer = parseInt(hex.substring(0, 2), 16);
+        const gLayer = parseInt(hex.substring(2, 4), 16);
+        const bLayer = parseInt(hex.substring(4, 6), 16);
+
         for (let i = 0; i < data.length; i += 4) {
             let luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
 
             // Normalize to 0-1 range
             let normalized = (luminance - minLuminance) / range;
-            normalized = Math.max(0, Math.min(1, normalized)); // Clamp values
+            normalized = Math.max(0, Math.min(1, normalized));
 
-            // Adaptive gamma correction to preserve midtones
+            // Apply gamma correction
             let gammaCorrected = Math.pow(normalized, 1 / gamma);
 
-            // Invert but retain midtone balance
+            // Invert for mask effect
             let inverted = 1 - gammaCorrected;
 
-            // Scale back to 0-255 range
-            let finalValue = Math.round(inverted * 255);
+            // Use inverted value as a mask to blend with the layer color
+            data[i] = Math.round(inverted * rLayer);
+            data[i + 1] = Math.round(inverted * gLayer);
+            data[i + 2] = Math.round(inverted * bLayer);
 
-            // Apply to all channels (grayscale)
-            data[i] = data[i + 1] = data[i + 2] = finalValue;
-
-            // Make originally white areas transparent
-            data[i + 3] = gammaCorrected > 0.98 ? 0 : 255;
+            // Transparency: Make originally white areas transparent
+            // Use the original luminance to determine transparency
+            let alpha = (luminance / 255); // 0 (black) to 1 (white)
+            alpha = 1 - alpha; // Invert: white (1) becomes 0 (transparent), black (0) becomes 1 (opaque)
+            data[i + 3] = Math.round(alpha * 255); // Scale to 0-255
         }
 
-        console.log("Processing complete. Full-resolution inversion applied.");
+        console.log("Processed Sample (R,G,B,A):", data[0], data[1], data[2], data[3]);
 
-        // Step 3: Update the canvas with modified image data
         ctx.putImageData(imageData, 0, 0);
-        callback(canvas.toDataURL("image/png", 1.0)); // Maintain full quality
+        callback(canvas.toDataURL("image/png", 1.0));
     };
 
     img.onerror = () => console.error(`Canvas image load failed: ${url}`);
@@ -559,7 +701,6 @@ const updateDisplays = () => {
     updateRoomMockup();
 };
 
-// Initialization
 const initialize = async () => {
     try {
         console.log("Initializing local/session storage...");
@@ -589,15 +730,46 @@ const initialize = async () => {
                 view: "SAFFRON COTTAGE PRODUCTS",
             });
             console.log("First record fields:", records[0]?.fields);
-            const curatedColorsRaw = records[0]?.fields["CURATED COLORS"] || "";
-            const curatedColors = curatedColorsRaw ? curatedColorsRaw.split(',').map(c => c.trim()) : fallbackCuratedColors;
+
+            const curatedColorsRaw = records.length > 0 && records[0]?.fields?.["CURATED COLORS"]
+                ? records[0].fields["CURATED COLORS"]
+                : "";
+            const curatedColors = curatedColorsRaw
+                ? curatedColorsRaw.split(',').map(c => c.trim())
+                : fallbackCuratedColors;
             console.log(`Curated colors for ${tableName}:`, curatedColors);
+
             appState.colorsData = [...new Set([...appState.colorsData, ...curatedColors])];
+
+            const patternsForCollection = records.map(record => {
+                const recordFields = record.fields || {};
+                console.log(`Raw fields for record ${record.id}:`, recordFields); // Debug
+                const rawName = recordFields.NAME || recordFields.Name || "Unknown Pattern"; // Try both NAME and Name
+                const derivedName = rawName
+                    .replace(/^\d+[A-Z]*\d*\s*-\s*/, '') // Remove prefix like "109M1 - "
+                    .replace(/\s*-\s*(MULTIPLE COLORS VERSION \d+|LAYER SEPARATIONS|DESIGN|PATTERN|COLOR SEPARATIONS|.*24X24.*)$/i, '') // Remove suffixes
+                    .trim();
+                console.log(`Derived name for "${rawName}": "${derivedName}"`); // Debug
+                return {
+                    id: record.id,
+                    rawName: rawName,
+                    name: derivedName,
+                    number: recordFields.NUMBER || "",
+                    collection: recordFields.COLLECTION || "",
+                    layers: recordFields['LAYER SEPARATIONS'] ? recordFields['LAYER SEPARATIONS'].map(attachment => attachment.url) : [],
+                    curatedColors: recordFields['CURATED COLORS'] ? recordFields['CURATED COLORS'].split(',').map(c => c.trim()) : curatedColors,
+                    thumbnail: recordFields.THUMBNAIL && recordFields.THUMBNAIL.length > 0 ? recordFields.THUMBNAIL[0].url : "",
+                    coordinatePrints: recordFields["COORDINATE PRINTS"] || []
+                };
+            });
+
             collectionsData.push({
                 name: tableName.replace(/^\d+ - /, ""),
-                patterns: records,
+                patterns: patternsForCollection,
                 curatedColors: curatedColors,
             });
+
+            patterns.push(...patternsForCollection);
         }
         appState.collectionsData = collectionsData;
         console.log("Collections loaded:", appState.collectionsData);
@@ -628,7 +800,7 @@ const initialize = async () => {
     }
 };
 
-const startApp = (collectionsData, collectionName = "FARMHOUSE", patternName = "FARM TOILE") => {
+const startApp = (collectionsData, collectionName = "FARMHOUSE", patternName = "LANCASTER TOLE") => {
     try {
         console.log(`Starting app with collection: ${collectionName}, pattern: ${patternName}`);
         if (!collectionsData) {
@@ -640,12 +812,18 @@ const startApp = (collectionsData, collectionName = "FARMHOUSE", patternName = "
             console.error(`Collection "${collectionName}" not found.`);
             return;
         }
+        appState.selectedCollection = collection;
+        console.log("Available patterns:", collection.patterns.map(p => p.name));
         handleCollectionSelection(collection);
 
-        if (patternName) {
+        const normalizedPatternName = patternName.toUpperCase();
+        const validPattern = collection.patterns.find(p => p.name.toUpperCase() === normalizedPatternName);
+        if (validPattern) {
             handlePatternSelection(patternName);
         } else {
-            console.warn("No pattern specified.");
+            console.warn(`Pattern "${patternName}" not found, using first available pattern`);
+            const firstPatternName = collection.patterns[0]?.name || "LANCASTER TOLE";
+            handlePatternSelection(firstPatternName);
         }
     } catch (error) {
         console.error("Error in startApp:", error);
