@@ -19,46 +19,48 @@ document.querySelectorAll(".thumbnail").forEach(thumb => {
             return;
         }
 
-        console.log("Selected pattern:", selectedPattern.name);
-        console.log("LAYER SEPARATIONS:", selectedPattern.layers);
+        // ... (existing background color logic)
 
-        // Determine background color
-        let backgroundColor;
-        if (selectedPattern.curatedColors && selectedPattern.curatedColors.length > 0) {
-            backgroundColor = selectedPattern.curatedColors[0];
-        } else {
-            const topRow = patterns.find(p => p.number && p.number.endsWith("-100") && p.collection === selectedPattern.collection);
-            backgroundColor = topRow && topRow.curatedColors && topRow.curatedColors.length > 0
-                ? topRow.curatedColors[0]
-                : "#ffffff";
-        }
+        // Add overlay layers with labels
+        const overlayLayers = appState.selectedPattern.layers || [];
+const layerLabels = (appState.selectedPattern['LAYER LABELS'] || '')
+    .split(',')
+    .map(label => label.trim())
+    .filter(label => label);
 
-        // Update state
-        currentPattern = selectedPattern;
-        currentLayers = [];
+    // In BOTH your thumbnail click handler AND handlePatternSelection:
+console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
+console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
+console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
 
-        // Add background layer
-        const backgroundLayer = {
-            imageUrl: null,
-            color: backgroundColor,
-            label: "background"
-        };
-        currentLayers.push(backgroundLayer);
+// Fallback to filename parsing if labels are missing
+if (layerLabels.length === 0 && appState.selectedPattern.rawName) {
+    const filename = appState.selectedPattern.rawName;
+    const segments = filename.split(/\s*-\s*/).map(seg => seg.trim());
+    if (segments.length >= 3) {
+        const parsedLabel = segments[2]
+            .replace(/\s*\d+X\d+.*$/, '')
+            .replace(/\..+$/, '')
+            .trim();
+        layerLabels.push(parsedLabel);
+    }
+}
 
-        // Add overlay layers with position-based labels
-        const overlayLayers = selectedPattern.layers || [];
-        overlayLayers.forEach((layerUrl, index) => {
-            const label = `layer-${index + 1}`; // Position-based label (Layer 1, Layer 2, etc.)
-
-            currentLayers.push({
-                imageUrl: layerUrl,
-                color: selectedPattern.curatedColors[index + 1] || "#000000",
-                label: label
-            });
-        });
+overlayLayers.forEach((layerUrl, index) => {
+    const label = layerLabels[index] || `Layer ${index + 1}`;
+    console.log(`Layer ${index + 1}: Using label "${label}"`);
+    
+    currentLayers.push({
+        imageUrl: layerUrl,
+        color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
+        label: label
+    });
+});
 
         console.log("Total layers (including background):", currentLayers.length);
         console.log("Overlay layers:", overlayLayers);
+
+        console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
 
         // Update appState
         appState.layerInputs = [];
@@ -343,16 +345,32 @@ const handlePatternSelection = (patternName) => {
     currentLayers.push(backgroundLayer);
 
     const overlayLayers = appState.selectedPattern.layers || [];
+    const layerLabels = (appState.selectedPattern['LAYER LABELS'] || '')
+        .split(',')
+        .map(label => label.trim())
+        .filter(label => label);
+    
+        // In BOTH your thumbnail click handler AND handlePatternSelection:
+console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
+console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
+console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
+    // Fallback to filename parsing if labels are missing
+    if (layerLabels.length === 0 && appState.selectedPattern.rawName) {
+        const filename = appState.selectedPattern.rawName;
+        const segments = filename.split(/\s*-\s*/).map(seg => seg.trim());
+        if (segments.length >= 3) {
+            const parsedLabel = segments[2]
+                .replace(/\s*\d+X\d+.*$/, '')
+                .replace(/\..+$/, '')
+                .trim();
+            layerLabels.push(parsedLabel);
+        }
+    }
+    
     overlayLayers.forEach((layerUrl, index) => {
-        const filename = layerUrl.split('/').pop();
-        const layerDescription = filename
-            .split(' - ')
-            .slice(2)
-            .join(' - ')
-            .replace('.jpg', '')
-            .trim();
-        const label = layerDescription || `Layer ${index + 1}`;
-        console.log(`Derived label for layer ${index + 1} from "${filename}": "${label}"`); // Debug
+        const label = layerLabels[index] || `Layer ${index + 1}`;
+        console.log(`Layer ${index + 1}: Using label "${label}"`);
+        
         currentLayers.push({
             imageUrl: layerUrl,
             color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
