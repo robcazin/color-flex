@@ -90,13 +90,13 @@ select {
 }
 
 #layerInputsContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);  /* Two columns of inputs */
-  gap: 12px;
-  width: 100%;
-  padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.25rem;
+    box-sizing: border-box;
 }
-
 
 .layer-input {
   width: 120px;
@@ -555,7 +555,7 @@ img {
 #colorPrompt {
   text-align: center;
   padding: 1rem 0;
-  margin-bottom: 40px;
+  margin-top: 40px;
 }
 
 #colorPrompt h3 {
@@ -585,7 +585,7 @@ img {
 }
 
 /* Room Mockup */
-#roomMockup {
+/* #roomMockup {
   width: 600px !important;
   max-width: 600px !important;
   padding-bottom: 75.33% !important;
@@ -597,7 +597,15 @@ img {
   aspect-ratio: unset !important;
   z-index: 0;
   margin-left: 40px;
+} */
+#roomMockup {
+    flex: 1;
+    max-width: 600px;
+    min-width: 300px;
+    position: relative;
+    margin-top: 36px;
 }
+
 
 #roomMockup img,
 #roomMockup .blend-layer {
@@ -607,7 +615,7 @@ img {
 }
 
 /* Color controls */
-#colorControls {
+/* #colorControls {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -618,7 +626,14 @@ img {
   max-width: 220px;
   z-index: 1;
   position: relative;
+} */
+/* Apply Tailwind styles */
+#colorControls {
+    @apply flex flex-col items-center justify-start gap-2 p-2 max-w-[220px] z-10 relative;
+    flex: 0 0 auto; /* Ensure it doesn’t grow/shrink in flex container */
+    width: 320px; /* Fixed width to prevent collapse */
 }
+
 
 /* Pattern Preview Wrapper */
 #patternPreviewWrapper {
@@ -647,7 +662,7 @@ img {
 }
 
 /* Coordinates Section */
-#coordinatesSection {
+/* #coordinatesSection {
   grid-column: 3;
   display: flex;
   flex-direction: column;
@@ -657,10 +672,9 @@ img {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  margin-top: -100px; /* Adjusted to pull up closer */
-}
+} */
 
-#coordinatesContainer {
+/* #coordinatesContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -669,7 +683,7 @@ img {
   min-height: 300px;
   overflow: visible;
   max-width: 600px;
-}
+} */
 
 .positioning-wrapper {
   position: relative;
@@ -1049,9 +1063,71 @@ aside a:hover {
     @apply w-[565px] h-[630px] overflow-hidden relative z-0 flex-shrink-0;
 }
 
-/* Room Mockup */
+/* NEW CSS */
+/* === App Layout === */
+.app-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    min-height: 100vh;
+}
+
+/* === Color Controls Section === */
+#colorControls {
+    @apply flex flex-col items-center justify-start gap-2 p-2 max-w-[320px] z-10 relative;
+    flex: 0 0 auto;
+    width: 320px;
+}
+
+#layerInputsContainer {
+    @apply grid grid-cols-2 gap-2;
+    width: 100%;
+    padding: 0.25rem;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.layer-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.layer-label {
+    text-align: center;
+    font-size: 0.85rem;
+    white-space: normal;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.circle-input {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+}
+
+.layer-input {
+    width: 100%;
+    max-width: 140px;
+    padding: 0.25rem;
+    font-size: 0.85rem;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* === Room Mockup Section === */
 #roomMockup {
-    @apply w-[600px] max-w-[600px] pb-[75.33%] h-0 overflow-hidden relative z-0 flex-shrink-0 ml-20;
+    @apply w-full max-w-[600px] pb-[75.33%] h-0 overflow-hidden relative z-0 flex-shrink-0;
+    flex: 1;
+    min-width: 300px;
 }
 
 #roomMockup img,
@@ -1059,29 +1135,13 @@ aside a:hover {
     @apply w-full h-full object-cover;
 }
 
-/* Color controls */
-#colorControls {
-    @apply flex flex-col items-center justify-start gap-2 p-2 max-w-[220px] z-10 relative;
-}
-
-/* Pattern Preview Wrapper */
-#patternPreviewWrapper {
-    @apply flex-grow-0 flex-shrink-0 max-w-[565px] w-full;
-}
-
-/* Pattern Preview */
-#patternPreview {
-    @apply max-w-[565px] w-full flex-shrink-0 text-center;
-}
-
-#patternPreview h2,
-#patternName {
-    @apply mt-2 text-base text-[#f0e6d2] text-center break-words;
-}
-
-/* Coordinates Section */
+/* === Coordinates Section === */
 #coordinatesSection {
-    @apply col-start-3 flex flex-col items-center p-4 text-center w-full mt-[-120px];
+    @apply flex flex-col items-center p-4 text-center w-full;
+    margin-top: -300px; /* Maintain the negative margin for overlay effect */
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #coordinatesContainer {
@@ -1101,7 +1161,21 @@ aside a:hover {
     @apply scale-130 z-10 shadow-lg;
 }
 
-/* Left Sidebar */
+/* === Pattern Preview Section === */
+#patternPreviewWrapper {
+    @apply flex-grow-0 flex-shrink-0 max-w-[565px] w-full;
+}
+
+#patternPreview {
+    @apply max-w-[565px] w-full flex-shrink-0 text-center;
+}
+
+#patternPreview h2,
+#patternName {
+    @apply mt-2 text-base text-[#f0e6d2] text-center break-words;
+}
+
+/* === Left Sidebar Section === */
 #leftSidebar {
     @apply fixed left-0 top-0 bottom-0 w-[200px] p-4 z-20 shadow-lg bg-[#1a202c] mt-[calc(140px+2.5rem)];
 }
@@ -1118,7 +1192,33 @@ aside a:hover {
     @apply bg-[#2d3748];
 }
 
-/* Collection Thumbnails */
+/* === Collection Thumbnails Section === */
 #collectionThumbnails {
     @apply flex flex-col gap-4 mt-4;
+}
+
+/* === Media Queries === */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #colorControls {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    #roomMockup {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    #layerInputsContainer {
+        grid-template-columns: 1fr;
+    }
+
+    #coordinatesSection {
+        margin-top: 0; /* Remove negative margin on mobile */
+    }
 }

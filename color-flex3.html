@@ -50,15 +50,17 @@
                 </div>
             </div>
         </section>
-        <div id="colorControls" class="flex flex-col items-center justify-start gap-2 p-2 max-w-[220px] z-10 relative">
-            <h2 class="text-lg text-center mb-2">Background & Layers</h2>
-            <div id="layerInputsContainer" class="grid"></div>
-            <div id="scaleControl" class="flex items-center space-x-2 w-full mt-2">
-                <label for="patternScale" class="text-sm">Pattern Scale:</label>
-                <input type="range" id="patternScale" min="10" max="200" value="100" step="10" class="slider">
+        <div class="app-container flex flex-row gap-4 max-w-[1200px] mx-auto">
+            <div id="colorControls" class="flex flex-col items-center justify-start gap-2 p-2 max-w-[320px] z-10 relative">
+                <h2 class="text-lg text-center mb-2">Background & Layers</h2>
+                <div id="layerInputsContainer" class="grid grid-cols-2 gap-2"></div>
+                <div id="scaleControl" class="flex items-center space-x-2 w-full mt-2">
+                    <label for="patternScale" class="text-sm">Pattern Scale:</label>
+                    <input type="range" id="patternScale" min="10" max="200" value="100" step="10" class="slider">
+                </div>
             </div>
-        </div>
-        <div id="roomMockup" class="w-[600px] max-w-[600px] pb-[75.33%] h-0 overflow-hidden relative z-0 flex-shrink-0 ml-20"></div>
+            <div id="roomMockup" class="w-full max-w-[600px] pb-[75.33%] h-0 overflow-hidden relative z-0 flex-shrink-0"></div>
+        </div>       
         <section id="coordinatesSection" class="col-start-3 flex flex-col items-center p-4 text-center w-full mt-[-200px]">
             <h3>Matching Coordinates</h3>
             <div id="coordinatesContainer" class="flex justify-center items-center relative w-full min-h-[300px] overflow-visible max-w-[600px]"></div>

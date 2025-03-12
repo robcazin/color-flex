@@ -7,7 +7,7 @@ let patterns = []; // Populated by initialize
 
 
 
-
+// THUMBNAIL CLICK HANDLER
 document.querySelectorAll(".thumbnail").forEach(thumb => {
     thumb.addEventListener("click", () => {
         const patternId = thumb.dataset.patternId;
@@ -19,43 +19,41 @@ document.querySelectorAll(".thumbnail").forEach(thumb => {
             return;
         }
 
-        // ... (existing background color logic)
-
         // Add overlay layers with labels
         const overlayLayers = appState.selectedPattern.layers || [];
-const layerLabels = (appState.selectedPattern['LAYER LABELS'] || '')
-    .split(',')
-    .map(label => label.trim())
-    .filter(label => label);
+        const layerLabels = (appState.selectedPattern['LAYER LABELS'] || '')
+        .split(',')
+        .map(label => label.trim())
+        .filter(label => label);
 
-    // In BOTH your thumbnail click handler AND handlePatternSelection:
-console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
-console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
-console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
+        // In BOTH your thumbnail click handler AND handlePatternSelection:
+        console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
+        console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
+        console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
 
-// Fallback to filename parsing if labels are missing
-if (layerLabels.length === 0 && appState.selectedPattern.rawName) {
-    const filename = appState.selectedPattern.rawName;
-    const segments = filename.split(/\s*-\s*/).map(seg => seg.trim());
-    if (segments.length >= 3) {
-        const parsedLabel = segments[2]
-            .replace(/\s*\d+X\d+.*$/, '')
-            .replace(/\..+$/, '')
-            .trim();
-        layerLabels.push(parsedLabel);
-    }
-}
+        // Fallback to filename parsing if labels are missing
+        if (layerLabels.length === 0 && appState.selectedPattern.rawName) {
+            const filename = appState.selectedPattern.rawName;
+            const segments = filename.split(/\s*-\s*/).map(seg => seg.trim());
+            if (segments.length >= 3) {
+                const parsedLabel = segments[2]
+                    .replace(/\s*\d+X\d+.*$/, '')
+                    .replace(/\..+$/, '')
+                    .trim();
+                layerLabels.push(parsedLabel);
+            }
+        }
 
-overlayLayers.forEach((layerUrl, index) => {
-    const label = layerLabels[index] || `Layer ${index + 1}`;
-    console.log(`Layer ${index + 1}: Using label "${label}"`);
-    
-    currentLayers.push({
-        imageUrl: layerUrl,
-        color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
-        label: label
-    });
-});
+        overlayLayers.forEach((layerUrl, index) => {
+            const label = layerLabels[index] || `Layer ${index + 1}`;
+            console.log(`Layer ${index + 1}: Using label "${label}"`);
+            
+            currentLayers.push({
+                imageUrl: layerUrl,
+                color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
+                label: label
+            });
+        });
 
         console.log("Total layers (including background):", currentLayers.length);
         console.log("Overlay layers:", overlayLayers);
@@ -76,18 +74,19 @@ overlayLayers.forEach((layerUrl, index) => {
       // Trigger preview update
       updatePreview();
     });
-  });
+});
 
 const loadJSON = async (url) => {
-    try {
-        const response = await fetch(url);
-        return await response.json();
-    } catch (error) {
-        console.error(`Error loading ${url}:`, error);
-        throw error;
-    }
+        try {
+            const response = await fetch(url);
+            return await response.json();
+        } catch (error) {
+            console.error(`Error loading ${url}:`, error);
+            throw error;
+        }
 };
 
+    
 // Utility Functions
 const toInitialCaps = (str) =>
     str
@@ -131,13 +130,41 @@ const base = airtable.base('appsywaKYiyKQTnl3');
 const loadAirtableData = async (tableName, options = {}) => {
     return new Promise((resolve, reject) => {
         console.log(`Starting fetch for ${tableName}`);
-        base(tableName).select(options).all((err, records) => {
+        const requiredFields = [
+            'NAME', // Match Airtable field name exactly
+            'NUMBER',
+            'COLLECTION',
+            'LAYER SEPARATIONS',
+            'CURATED COLORS',
+            'THUMBNAIL',
+            'COORDINATE PRINTS',
+            'LAYER LABELS'
+        ];
+        base(tableName).select({
+            ...options,
+            fields: [...(options.fields || []), ...requiredFields]
+        }).all((err, records) => {
             if (err) {
                 console.error(`Error loading ${tableName}:`, err);
                 reject(err);
             } else {
                 console.log(`Loaded ${records.length} records from ${tableName}`);
-                resolve(records);
+                if (records.length > 0) {
+                    console.log("Raw fields of first record:", records[0].fields);
+                }
+                const patterns = records.map(record => ({
+                    id: record.id,
+                    rawName: record.fields['NAME'] || '',
+                    name: record.fields['NAME'] || '',
+                    number: record.fields['NUMBER'] || '',
+                    collection: record.fields['COLLECTION']?.[0] || '', // Handle array if needed
+                    layers: record.fields['LAYER SEPARATIONS'] || [],
+                    curatedColors: record.fields['CURATED COLORS'] || '',
+                    thumbnail: record.fields['THUMBNAIL'] || [],
+                    coordinatePrints: record.fields['COORDINATE PRINTS'] || [],
+                    'LAYER LABELS': record.fields['LAYER LABELS'] || ''
+                }));
+                resolve(patterns);
             }
         });
     });
@@ -351,9 +378,9 @@ const handlePatternSelection = (patternName) => {
         .filter(label => label);
     
         // In BOTH your thumbnail click handler AND handlePatternSelection:
-console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
-console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
-console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
+        // console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
+        // console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
+        // console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
     // Fallback to filename parsing if labels are missing
     if (layerLabels.length === 0 && appState.selectedPattern.rawName) {
         const filename = appState.selectedPattern.rawName;
@@ -470,32 +497,30 @@ const populateLayerInputs = (curatedColors) => {
     })));
 };
 
-const populateCoordinates = (coordinates) => {
-    console.log("Populating coordinates:", coordinates);
-    if (!dom.coordinatesContainer) return;
-    dom.coordinatesContainer.innerHTML = "";
-    if (!coordinates.length) {
-        dom.coordinatesContainer.textContent = "No matching coordinates available.";
+function populateCoordinates(coordinates) {
+    const container = dom.coordinatesContainer || document.getElementById('coordinatesContainer');
+    if (!container) {
+        console.error("coordinatesContainer not found in DOM");
         return;
     }
-    coordinates.forEach(coord => {
-        const div = document.createElement("div");
-        div.className = "coordinate-item";
-        div.style.cssText = "display: inline-block; margin: 5px; width: 100px; height: 100px;";
-        if (coord.url) {
-            const img = document.createElement("img");
-            img.src = coord.url;
-            img.alt = coord.filename || "Coordinate";
-            img.style.cssText = "width: 100%; height: 100%; object-fit: contain;";
-            img.onerror = () => console.error(`Coordinate image failed: ${coord.url}`);
-            img.onload = () => console.log(`Coordinate image loaded: ${coord.url}`);
-            div.appendChild(img);
-        } else {
-            div.textContent = coord.filename || coord;
-        }
-        dom.coordinatesContainer.appendChild(div);
+
+    container.innerHTML = ''; // Clear existing content
+
+    // Handle case where coordinates is not an array
+    const coordsArray = Array.isArray(coordinates) ? coordinates : [];
+    if (coordsArray.length === 0) {
+        container.textContent = "No matching coordinates available.";
+        return;
+    }
+
+    coordsArray.forEach((coord, index) => {
+        const box = document.createElement('div');
+        box.className = 'coordinate-box';
+        box.style.setProperty('--x-offset', `${index * 50}px`); // Example offset
+        box.innerHTML = `<img src="${coord.url || coord}" alt="Coordinate ${index + 1}">`; // Handle url or raw string
+        container.appendChild(box);
     });
-};
+}
 
 const updatePreview = () => {
     if (!dom.preview) {
@@ -736,6 +761,16 @@ const initialize = async () => {
             sessionStorage.setItem("appLaunched", "true");
         }
 
+        // Initialize DOM elements
+        const dom = {
+            patternScaleSlider: document.getElementById('patternScale'),
+            preview: document.getElementById('preview'), // Adjust if ID differs
+            roomMockup: document.getElementById('roomMockup'),
+            layerInputsContainer: document.getElementById('layerInputsContainer'),
+            colorControls: document.getElementById('colorControls')
+        };
+        console.log("Initial DOM check:", dom);
+
         appState.colorsData = ["Iron Ore", "Snowbound"];
         colorData = await loadJSON("./colors.json");
         console.log("Loaded colors.json:", colorData);
@@ -751,10 +786,10 @@ const initialize = async () => {
                 view: "SAFFRON COTTAGE PRODUCTS",
             });
             console.log("Records:", records);
-            console.log("First record fields:", records[0]?.fields);
+            console.log("First record:", records[0]);
 
-            const curatedColorsRaw = records.length > 0 && records[0]?.fields?.["CURATED COLORS"]
-                ? records[0].fields["CURATED COLORS"]
+            const curatedColorsRaw = records.length > 0 && records[0]?.['CURATED COLORS']
+                ? records[0]['CURATED COLORS']
                 : "";
             const curatedColors = curatedColorsRaw
                 ? curatedColorsRaw.split(',').map(c => c.trim())
@@ -764,24 +799,24 @@ const initialize = async () => {
             appState.colorsData = [...new Set([...appState.colorsData, ...curatedColors])];
 
             const patternsForCollection = records.map(record => {
-                const recordFields = record.fields || {};
-                console.log(`Field names for record ${record.id}:`, Object.keys(recordFields));
-                const rawName = recordFields.Name || recordFields.NAME || recordFields.name || "Unknown Pattern"; // Use Name
+                console.log(`Field names for record ${record.id}:`, Object.keys(record));
+                const rawName = record.name || "Unknown Pattern";
                 const derivedName = rawName
-                    .replace(/^\d+[A-Z]*\d*\s*-\s*/, '') // Remove prefix like "109M1 - "
-                    .replace(/\s*-\s*(MULTIPLE COLORS VERSION \d+|LAYER SEPARATIONS|DESIGN|PATTERN|COLOR SEPARATIONS|.*24X24.*)$/i, '') // Remove suffixes
+                    .replace(/^\d+[A-Z]*\d*\s*-\s*/, '')
+                    .replace(/\s*-\s*(MULTIPLE COLORS VERSION \d+|LAYER SEPARATIONS|DESIGN|PATTERN|COLOR SEPARATIONS|.*24X24.*)$/i, '')
                     .trim();
                 console.log(`Derived name for "${rawName}": "${derivedName}"`);
                 return {
                     id: record.id,
-                    rawName: rawName,
+                    rawName: record.rawName,
                     name: derivedName,
-                    number: recordFields.NUMBER || "",
-                    collection: recordFields.COLLECTION || "",
-                    layers: recordFields['LAYER SEPARATIONS'] ? recordFields['LAYER SEPARATIONS'].map(attachment => attachment.url) : [],
-                    curatedColors: recordFields['CURATED COLORS'] ? recordFields['CURATED COLORS'].split(',').map(c => c.trim()) : curatedColors,
-                    thumbnail: recordFields.THUMBNAIL && recordFields.THUMBNAIL.length > 0 ? recordFields.THUMBNAIL[0].url : "",
-                    coordinatePrints: recordFields["COORDINATE PRINTS"] || []
+                    number: record.number,
+                    collection: record.collection,
+                    layers: record.layers ? record.layers.map(attachment => attachment.url) : [],
+                    curatedColors: record['CURATED COLORS'] ? record['CURATED COLORS'].split(',').map(c => c.trim()) : curatedColors,
+                    thumbnail: record.thumbnail && record.thumbnail.length > 0 ? record.thumbnail[0].url : "",
+                    coordinatePrints: record.coordinatePrints || [],
+                    'LAYER LABELS': record['LAYER LABELS'] || ""
                 };
             });
 
@@ -809,8 +844,25 @@ const initialize = async () => {
         }
 
         const adjustLayout = () => {
-            if (dom.preview) dom.preview.style.height = `${dom.preview.offsetWidth}px`;
-            if (dom.roomMockup) dom.roomMockup.style.height = `${dom.roomMockup.offsetWidth * 0.75}px`;
+            try {
+                if (dom.preview) {
+                    dom.preview.style.height = `${dom.preview.offsetWidth}px`;
+                }
+                if (dom.roomMockup) {
+                    const mockupWidth = dom.roomMockup.offsetWidth;
+                    dom.roomMockup.style.height = `${mockupWidth * 0.7533}px`; // 75.33% aspect ratio
+                }
+                if (dom.layerInputsContainer) {
+                    dom.layerInputsContainer.style.height = 'auto';
+                    dom.layerInputsContainer.style.maxHeight = '80vh';
+                    dom.layerInputsContainer.style.overflowY = 'auto';
+                }
+                // Debug sizes
+                console.log("Color Controls Width:", dom.colorControls?.offsetWidth || 'N/A');
+                console.log("Room Mockup Width:", dom.roomMockup?.offsetWidth || 'N/A');
+            } catch (error) {
+                console.error("Error in adjustLayout:", error);
+            }
         };
         window.addEventListener("resize", adjustLayout);
         adjustLayout();
