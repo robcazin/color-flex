@@ -127,7 +127,48 @@ if (typeof Airtable === 'undefined') {
 const airtable = new Airtable({ apiKey: 'patFtSWH6rXymvmio.c4b5cf40de13b1c3f8468c169a391dd4bfd49bb4d0079220875703ff5affe7c3' });
 const base = airtable.base('appsywaKYiyKQTnl3');
 
-const loadAirtableData
+const loadAirtableData = async (tableName, options = {}) => {
+    return new Promise((resolve, reject) => {
+        console.log(`Starting fetch for ${tableName}`);
+        const requiredFields = [
+            'NAME', // Match Airtable field name exactly
+            'NUMBER',
+            'COLLECTION',
+            'LAYER SEPARATIONS',
+            'CURATED COLORS',
+            'THUMBNAIL',
+            'COORDINATE PRINTS',
+            'LAYER LABELS'
+        ];
+        base(tableName).select({
+            ...options,
+            fields: [...(options.fields || []), ...requiredFields]
+        }).all((err, records) => {
+            if (err) {
+                console.error(`Error loading ${tableName}:`, err);
+                reject(err);
+            } else {
+                console.log(`Loaded ${records.length} records from ${tableName}`);
+                if (records.length > 0) {
+                    console.log("Raw fields of first record:", records[0].fields);
+                }
+                const patterns = records.map(record => ({
+                    id: record.id,
+                    rawName: record.fields['NAME'] || '',
+                    name: record.fields['NAME'] || '',
+                    number: record.fields['NUMBER'] || '',
+                    collection: record.fields['COLLECTION']?.[0] || '', // Handle array if needed
+                    layers: record.fields['LAYER SEPARATIONS'] || [],
+                    curatedColors: record.fields['CURATED COLORS'] || '',
+                    thumbnail: record.fields['THUMBNAIL'] || [],
+                    coordinatePrints: record.fields['COORDINATE PRINTS'] || [],
+                    'LAYER LABELS': record.fields['LAYER LABELS'] || ''
+                }));
+                resolve(patterns);
+            }
+        });
+    });
+};
 
 let colorData = [];
 const getColorHex = (colorName) => {
@@ -293,7 +334,106 @@ const handleCollectionSelection = (collection) => {
     loadThumbnails(collection.patterns);
 };
 
-const handlePatternSelection
+const handlePatternSelection = (patternName) => {
+    console.log(`Attempting to select pattern: ${patternName}`);
+    appState.selectedPattern = appState.selectedCollection.patterns.find(
+        (p) => p.name.toUpperCase() === patternName.toUpperCase()
+    );
+    if (!appState.selectedPattern) {
+        console.error(`Pattern "${patternName}" not found in ${appState.selectedCollection.name}`);
+        appState.selectedPattern = appState.selectedCollection.patterns[0];
+        console.warn(`Falling back to first pattern: ${appState.selectedPattern?.name || 'None'}`);
+        if (!appState.selectedPattern) {
+            console.error("No patterns available in collection");
+            return;
+        }
+    }
+
+    console.log("Selected pattern:", appState.selectedPattern);
+    
+    let backgroundColor;
+    if (appState.selectedPattern.curatedColors && appState.selectedPattern.curatedColors.length > 0) {
+        backgroundColor = appState.selectedPattern.curatedColors[0];
+    } else {
+        const topRow = appState.selectedCollection.patterns.find(p => p.number && p.number.endsWith("-100") && p.collection === appState.selectedPattern.collection);
+        backgroundColor = topRow && topRow.curatedColors && topRow.curatedColors.length > 0
+            ? topRow.curatedColors[0]
+            : "#ffffff";
+    }
+
+    currentPattern = appState.selectedPattern;
+    currentLayers = [];
+
+    const backgroundLayer = {
+        imageUrl: null,
+        color: backgroundColor,
+        label: "background"
+    };
+    currentLayers.push(backgroundLayer);
+
+    const overlayLayers = appState.selectedPattern.layers || [];
+    const layerLabels = (appState.selectedPattern['LAYER LABELS'] || '')
+        .split(',')
+        .map(label => label.trim())
+        .filter(label => label);
+    
+        // In BOTH your thumbnail click handler AND handlePatternSelection:
+        // console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
+        // console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
+        // console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
+    // Fallback to filename parsing if labels are missing
+    if (layerLabels.length === 0 && appState.selectedPattern.rawName) {
+        const filename = appState.selectedPattern.rawName;
+        const segments = filename.split(/\s*-\s*/).map(seg => seg.trim());
+        if (segments.length >= 3) {
+            const parsedLabel = segments[2]
+                .replace(/\s*\d+X\d+.*$/, '')
+                .replace(/\..+$/, '')
+                .trim();
+            layerLabels.push(parsedLabel);
+        }
+    }
+    
+    overlayLayers.forEach((layerUrl, index) => {
+        const label = layerLabels[index] || `Layer ${index + 1}`;
+        console.log(`Layer ${index + 1}: Using label "${label}"`);
+        
+        currentLayers.push({
+            imageUrl: layerUrl,
+            color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
+            label: label
+        });
+    });
+
+    console.log("Total layers (including background):", currentLayers.length);
+    console.log("Overlay layers with names:", currentLayers.slice(1).map(l => l.label));
+
+    appState.layerInputs = [];
+    createColorInput("Background", "bgColorInput", backgroundColor, true);
+    currentLayers.slice(1).forEach((layer, index) => {
+        createColorInput(layer.label, `layer${index + 1}ColorInput`, layer.color);
+    });
+
+    appState.cachedLayerPaths = currentLayers.slice(1).map(layer => ({
+        url: layer.imageUrl,
+        name: layer.label
+    }));
+    console.log("Cached layer paths:", appState.cachedLayerPaths);
+
+    if (dom.patternName) dom.patternName.textContent = appState.selectedPattern.name;
+
+    const curatedColors = appState.selectedCollection.curatedColors || fallbackCuratedColors;
+    console.log("Collection curated colors:", curatedColors);
+
+    try {
+        populateLayerInputs(curatedColors);
+        populateCuratedColors(curatedColors);
+        populateCoordinates(appState.selectedPattern.coordinatePrints || []);
+        updateDisplays();
+    } catch (error) {
+        console.error("Error in handlePatternSelection:", error);
+    }
+};
 
 const populateCuratedColors = (colors) => {
     console.log("Populating curated colors:", colors);
@@ -366,63 +506,18 @@ function populateCoordinates(coordinates) {
 
     container.innerHTML = ''; // Clear existing content
 
-    // Handle case where coordinates is not a string or empty
-    if (typeof coordinates !== 'string' || !coordinates.trim()) {
+    // Handle case where coordinates is not an array
+    const coordsArray = Array.isArray(coordinates) ? coordinates : [];
+    if (coordsArray.length === 0) {
         container.textContent = "No matching coordinates available.";
         return;
     }
 
-    // Parse the comma-delimited string into an array of pattern names
-    const patternNames = coordinates.split(',').map(name => name.trim()).filter(name => name);
-    if (patternNames.length === 0) {
-        container.textContent = "No matching coordinates available.";
-        return;
-    }
-
-    // Flatten all patterns from collectionsData for lookup
-    const allPatterns = appState.collectionsData.flatMap(collection => collection.patterns);
-
-    patternNames.forEach((patternName, index) => {
-        // Find the pattern by name (case-insensitive match)
-        const pattern = allPatterns.find(p => p.name.toUpperCase() === patternName.toUpperCase());
-        if (!pattern) {
-            console.warn(`Pattern "${patternName}" not found in collectionsData`);
-            return;
-        }
-
-        // Create a coordinate box
+    coordsArray.forEach((coord, index) => {
         const box = document.createElement('div');
         box.className = 'coordinate-box';
-        box.style.setProperty('--x-offset', `${index * 160}px`); // Horizontal offset
-        box.style.setProperty('--y-offset', `${index * 160}px`); // Vertical offset
-
-        // Generate a preview using the pattern's layers and current colors
-        const previewDiv = document.createElement('div');
-        previewDiv.style.width = '140px';
-        previewDiv.style.height = '140px';
-        previewDiv.style.position = 'relative';
-        previewDiv.style.backgroundColor = '#fff';
-
-        // Use the first two layers as an example (adjust based on your needs)
-        const layers = [pattern.layers[0], pattern.layers[1]] || [];
-        layers.forEach((layerUrl, layerIndex) => {
-            const layerDiv = document.createElement('div');
-            layerDiv.style.position = 'absolute';
-            layerDiv.style.top = '0';
-            layerDiv.style.left = '0';
-            layerDiv.style.width = '100%';
-            layerDiv.style.height = '100%';
-            layerDiv.style.background = `url(${layerUrl}) no-repeat center`;
-            layerDiv.style.backgroundSize = 'cover';
-            layerDiv.style.opacity = '0.7';
-            if (pattern.curatedColors && pattern.curatedColors[layerIndex]) {
-                layerDiv.style.backgroundColor = getColorHexSafe(pattern.curatedColors[layerIndex]);
-            }
-            previewDiv.appendChild(layerDiv);
-        });
-
-        box.appendChild(previewDiv);
-        box.innerHTML += `<p class="text-xs text-center">${patternName}</p>`;
+        box.style.setProperty('--x-offset', `${index * 50}px`); // Example offset
+        box.innerHTML = `<img src="${coord.url || coord}" alt="Coordinate ${index + 1}">`; // Handle url or raw string
         container.appendChild(box);
     });
 }
