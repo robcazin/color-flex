@@ -131,14 +131,8 @@ const loadAirtableData = async (tableName, options = {}) => {
     return new Promise((resolve, reject) => {
         console.log(`Starting fetch for ${tableName}`);
         const requiredFields = [
-            'NAME', // Match Airtable field name exactly
-            'NUMBER',
-            'COLLECTION',
-            'LAYER SEPARATIONS',
-            'CURATED COLORS',
-            'THUMBNAIL',
-            'COORDINATE PRINTS',
-            'LAYER LABELS'
+            'NAME', 'NUMBER', 'COLLECTION', 'LAYER SEPARATIONS', 'CURATED COLORS',
+            'THUMBNAIL', 'COORDINATE PRINTS', 'LAYER LABELS'
         ];
         base(tableName).select({
             ...options,
@@ -150,20 +144,43 @@ const loadAirtableData = async (tableName, options = {}) => {
             } else {
                 console.log(`Loaded ${records.length} records from ${tableName}`);
                 if (records.length > 0) {
+                    console.log("All records:", records);
                     console.log("Raw fields of first record:", records[0].fields);
+                    // Log all field names to check for LAYER SEPARATIONS
+                    console.log("Field names in first record:", Object.keys(records[0].fields));
+                } else {
+                    console.warn("No records returned from Airtable for table:", tableName);
                 }
-                const patterns = records.map(record => ({
-                    id: record.id,
-                    rawName: record.fields['NAME'] || '',
-                    name: record.fields['NAME'] || '',
-                    number: record.fields['NUMBER'] || '',
-                    collection: record.fields['COLLECTION']?.[0] || '', // Handle array if needed
-                    layers: record.fields['LAYER SEPARATIONS'] || [],
-                    curatedColors: record.fields['CURATED COLORS'] || '',
-                    thumbnail: record.fields['THUMBNAIL'] || [],
-                    coordinatePrints: record.fields['COORDINATE PRINTS'] || [],
-                    'LAYER LABELS': record.fields['LAYER LABELS'] || ''
-                }));
+                const patterns = records
+                    .filter(record => record && typeof record === 'object' && record.fields)
+                    .map(record => {
+                        // Check for variations in field name
+                        const layerSeparations = record.fields['LAYER SEPARATIONS'] || record.fields['Layer Separations'] || record.fields['layer separations'];
+                        console.log(`Raw LAYER SEPARATIONS for record ${record.id}:`, JSON.stringify(layerSeparations));
+                        const layers = Array.isArray(layerSeparations)
+                            ? layerSeparations.map(attachment => {
+                                  const url = attachment?.url || 'no-url';
+                                  console.log(`Attachment for record ${record.id}:`, attachment, `URL: ${url}`);
+                                  return url;
+                              })
+                            : [];
+                        console.log(`Mapped layers for record ${record.id}:`, layers);
+                        const thumbnail = Array.isArray(record.fields['THUMBNAIL']) && record.fields['THUMBNAIL'].length > 0
+                            ? record.fields['THUMBNAIL'][0].url
+                            : null;
+                        return {
+                            id: record.id,
+                            rawName: record.fields['NAME'] || '',
+                            name: record.fields['NAME'] || '',
+                            number: record.fields['NUMBER'] || '',
+                            collection: record.fields['COLLECTION']?.[0] || '',
+                            layers: layers,
+                            curatedColors: record.fields['CURATED COLORS'] || [],
+                            thumbnail: thumbnail,
+                            coordinatePrints: record.fields['COORDINATE PRINTS'] || '',
+                            'LAYER LABELS': record.fields['LAYER LABELS'] || ''
+                        };
+                    });
                 resolve(patterns);
             }
         });
@@ -207,8 +224,8 @@ const createColorInput = (labelText, id, initialColor, isBackground = false) => 
     container.className = "layer-input-container";
     const label = document.createElement("div");
     label.className = "layer-label";
-    label.textContent = labelText || "Unknown Layer"; // Fallback label
-    console.log(`Creating color input with label: ${labelText}, ID: ${id}`); // Debug
+    label.textContent = labelText || "Unknown Layer";
+    console.log(`Creating color input with label: ${labelText}, ID: ${id}, initialColor: ${initialColor}`);
     const circle = document.createElement("div");
     circle.className = "circle-input";
     circle.id = `${id}Circle`;
@@ -217,9 +234,17 @@ const createColorInput = (labelText, id, initialColor, isBackground = false) => 
     input.className = "layer-input";
     input.id = id;
     input.placeholder = `Enter ${labelText ? labelText.toLowerCase() : 'layer'} color`;
-    input.value = toInitialCaps(initialColor || "Snowbound");
-    circle.style.backgroundColor = getColorHex(input.value);
+
+    // Extract the color name (remove SW number prefix if present)
+    const colorValue = initialColor || "Snowbound";
+    console.log(`Color value before extraction: ${JSON.stringify(colorValue)}`);
+    const colorName = colorValue.replace(/^(sw\s*\d+\s*)/i, '').trim();
+    console.log(`Color name after extraction: ${colorName}`);
+    input.value = toInitialCaps(colorName);
+
+    circle.style.backgroundColor = getColorHex(colorValue);
     container.append(label, circle, input);
+
     if (dom.layerInputsContainer) {
         dom.layerInputsContainer.appendChild(container);
     } else {
@@ -334,6 +359,10 @@ const handleCollectionSelection = (collection) => {
     loadThumbnails(collection.patterns);
 };
 
+const getColorHexSafe = (color) => {
+    return getColorHex(color) || (color && color.match(/^#[0-9A-Fa-f]{6}$/) ? color : "#000000");
+};
+
 const handlePatternSelection = (patternName) => {
     console.log(`Attempting to select pattern: ${patternName}`);
     appState.selectedPattern = appState.selectedCollection.patterns.find(
@@ -350,16 +379,14 @@ const handlePatternSelection = (patternName) => {
     }
 
     console.log("Selected pattern:", appState.selectedPattern);
-    
-    let backgroundColor;
-    if (appState.selectedPattern.curatedColors && appState.selectedPattern.curatedColors.length > 0) {
-        backgroundColor = appState.selectedPattern.curatedColors[0];
-    } else {
-        const topRow = appState.selectedCollection.patterns.find(p => p.number && p.number.endsWith("-100") && p.collection === appState.selectedPattern.collection);
-        backgroundColor = topRow && topRow.curatedColors && topRow.curatedColors.length > 0
-            ? topRow.curatedColors[0]
-            : "#ffffff";
-    }
+    console.log("Curated Colors:", appState.selectedPattern.curatedColors);
+
+    let backgroundColor = appState.selectedPattern.curatedColors && appState.selectedPattern.curatedColors.length > 0
+        ? appState.selectedPattern.curatedColors[0]
+        : (appState.selectedCollection.patterns.find(p => p.number && p.number.endsWith("-100") && p.collection === appState.selectedPattern.collection)?.curatedColors?.[0] || "#ffffff");
+    console.log("Raw backgroundColor before regex:", JSON.stringify(backgroundColor));
+    const backgroundColorName = backgroundColor.replace(/^(sw\s*\d+\s*)/i, '').trim() || "Snowbound";
+    console.log(`Background color: ${backgroundColor}, Background color name: ${backgroundColorName}`);
 
     currentPattern = appState.selectedPattern;
     currentLayers = [];
@@ -372,16 +399,18 @@ const handlePatternSelection = (patternName) => {
     currentLayers.push(backgroundLayer);
 
     const overlayLayers = appState.selectedPattern.layers || [];
+    console.log("Overlay Layers from selectedPattern:", overlayLayers);
+    console.log("Number of Overlay Layers:", overlayLayers.length);
+
     const layerLabels = (appState.selectedPattern['LAYER LABELS'] || '')
         .split(',')
         .map(label => label.trim())
         .filter(label => label);
-    
-        // In BOTH your thumbnail click handler AND handlePatternSelection:
-        // console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
-        // console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
-        // console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
-    // Fallback to filename parsing if labels are missing
+
+    console.log("Does 'LAYER LABELS' exist?", 'LAYER LABELS' in appState.selectedPattern);
+    console.log("All fields in selectedPattern:", Object.keys(appState.selectedPattern));
+    console.log("Raw 'LAYER LABELS' value:", appState.selectedPattern['LAYER LABELS']);
+
     if (layerLabels.length === 0 && appState.selectedPattern.rawName) {
         const filename = appState.selectedPattern.rawName;
         const segments = filename.split(/\s*-\s*/).map(seg => seg.trim());
@@ -393,11 +422,11 @@ const handlePatternSelection = (patternName) => {
             layerLabels.push(parsedLabel);
         }
     }
-    
+
     overlayLayers.forEach((layerUrl, index) => {
         const label = layerLabels[index] || `Layer ${index + 1}`;
-        console.log(`Layer ${index + 1}: Using label "${label}"`);
-        
+        console.log(`Layer ${index + 1}: Using label "${label}", URL: ${layerUrl}`);
+
         currentLayers.push({
             imageUrl: layerUrl,
             color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
@@ -406,12 +435,13 @@ const handlePatternSelection = (patternName) => {
     });
 
     console.log("Total layers (including background):", currentLayers.length);
-    console.log("Overlay layers with names:", currentLayers.slice(1).map(l => l.label));
+    console.log("Current Layers:", currentLayers);
 
     appState.layerInputs = [];
-    createColorInput("Background", "bgColorInput", backgroundColor, true);
+    createColorInput("Background", "bgColorInput", backgroundColorName, true);
     currentLayers.slice(1).forEach((layer, index) => {
-        createColorInput(layer.label, `layer${index + 1}ColorInput`, layer.color);
+        const layerColorName = layer.color.replace(/^(sw\s*\d+\s*)/i, '').trim() || "Snowbound";
+        createColorInput(layer.label, `layer${index + 1}ColorInput`, layerColorName);
     });
 
     appState.cachedLayerPaths = currentLayers.slice(1).map(layer => ({
@@ -419,6 +449,10 @@ const handlePatternSelection = (patternName) => {
         name: layer.label
     }));
     console.log("Cached layer paths:", appState.cachedLayerPaths);
+
+    console.log("Available pattern names:", appState.collectionsData.flatMap(c => c.patterns).map(p => p.name));
+    console.log("Coordinate Prints before populateCoordinates:", appState.selectedPattern.coordinatePrints);
+    populateCoordinates(appState.selectedPattern.coordinatePrints);
 
     if (dom.patternName) dom.patternName.textContent = appState.selectedPattern.name;
 
@@ -428,7 +462,6 @@ const handlePatternSelection = (patternName) => {
     try {
         populateLayerInputs(curatedColors);
         populateCuratedColors(curatedColors);
-        populateCoordinates(appState.selectedPattern.coordinatePrints || []);
         updateDisplays();
     } catch (error) {
         console.error("Error in handlePatternSelection:", error);
@@ -506,18 +539,80 @@ function populateCoordinates(coordinates) {
 
     container.innerHTML = ''; // Clear existing content
 
-    // Handle case where coordinates is not an array
-    const coordsArray = Array.isArray(coordinates) ? coordinates : [];
-    if (coordsArray.length === 0) {
+    if (typeof coordinates !== 'string' || !coordinates.trim()) {
         container.textContent = "No matching coordinates available.";
         return;
     }
 
-    coordsArray.forEach((coord, index) => {
+    const patternEntries = coordinates.split(',').map(entry => entry.trim()).filter(entry => entry);
+    if (patternEntries.length === 0) {
+        container.textContent = "No matching coordinates available.";
+        return;
+    }
+
+    patternEntries.forEach((entry, index) => {
+        const [collectionName, patternName] = entry.split('/').map(part => part.trim());
+        if (!collectionName || !patternName) {
+            console.warn(`Invalid coordinate entry format: "${entry}". Expected "collection/PatternName".`);
+            return;
+        }
+
+        const collection = appState.collectionsData.find(c => c.name.toLowerCase() === collectionName.toLowerCase());
+        if (!collection) {
+            console.warn(`Collection "${collectionName}" not found in collectionsData`);
+            return;
+        }
+
+        const pattern = collection.patterns.find(p => p.name.toUpperCase() === patternName.toUpperCase());
+        if (!pattern) {
+            console.warn(`Pattern "${patternName}" not found in collection "${collectionName}"`);
+            return;
+        }
+
+        console.log(`Pattern found for ${entry}:`, pattern);
+        console.log(`Layers for ${patternName}:`, pattern.layers);
+
+        // Ensure the pattern has layer separations
+        const layers = pattern.layers || [];
+        if (layers.length === 0) {
+            console.warn(`Pattern "${patternName}" in collection "${collectionName}" has no LAYER SEPARATIONS, skipping.`);
+            return;
+        }
+
         const box = document.createElement('div');
         box.className = 'coordinate-box';
-        box.style.setProperty('--x-offset', `${index * 50}px`); // Example offset
-        box.innerHTML = `<img src="${coord.url || coord}" alt="Coordinate ${index + 1}">`; // Handle url or raw string
+        box.style.setProperty('--x-offset', `${index * 160}px`);
+        box.style.setProperty('--y-offset', `0px`);
+
+        const previewDiv = document.createElement('div');
+        previewDiv.style.width = '140px';
+        previewDiv.style.height = '140px';
+        previewDiv.style.position = 'relative';
+        previewDiv.style.backgroundColor = '#fff';
+
+        // Align with updateDisplays logic
+        layers.slice(0, 2).forEach((layerUrl, layerIndex) => {
+            if (layerUrl && layerUrl !== 'undefined' && layerUrl !== 'no-url') {
+                const layerDiv = document.createElement('div');
+                layerDiv.style.position = 'absolute';
+                layerDiv.style.top = '0';
+                layerDiv.style.left = '0';
+                layerDiv.style.width = '100%';
+                layerDiv.style.height = '100%';
+                layerDiv.style.background = `url(${layerUrl}) no-repeat center`;
+                layerDiv.style.backgroundSize = 'cover';
+                layerDiv.style.opacity = '0.7';
+                // Use curated colors as a static preview (no dynamic inputs for coordinates)
+                const colorHex = getColorHex(pattern.curatedColors[layerIndex]) || '#000000';
+                layerDiv.style.backgroundColor = colorHex;
+                previewDiv.appendChild(layerDiv);
+            } else {
+                console.warn(`Layer ${layerIndex + 1} for ${patternName} has no valid URL (${layerUrl}), skipping.`);
+            }
+        });
+
+        box.appendChild(previewDiv);
+        box.innerHTML += `<p class="text-xs text-center">${patternName}</p>`;
         container.appendChild(box);
     });
 }
@@ -590,75 +685,77 @@ const updatePreview = () => {
     console.log("Total layers rendered:", appState.cachedLayerPaths.length + 1); // +1 for background
 };
 
-const updateRoomMockup = () => {
-    if (!dom.roomMockup) {
-        console.error("roomMockup not found in DOM");
-        return;
-    }
-    const bgColor = getColorHex(dom.layerInputsContainer?.querySelector("#layer0")?.value || "Iron Ore");
-    console.log("Updating room mockup with bgColor:", bgColor);
-    dom.roomMockup.classList.remove("aspect-square");
-    dom.roomMockup.classList.add("w-[600px]", "max-w-[600px]", "pb-[75.33%]", "h-0", "overflow-hidden", "relative", "z-0", "flex-shrink-0", "ml-20");
-    dom.roomMockup.innerHTML = "";
-    const bgDiv = document.createElement("div");
-    bgDiv.style.cssText = `
-        background-color: ${bgColor};
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 0; /* Background */
-    `;
-    dom.roomMockup.appendChild(bgDiv);
-    appState.cachedLayerPaths.forEach((layer, index) => {
-        const layerColor = getColorHex(appState.layerInputs[index + 1]?.input.value || "Snowbound");
-        console.log(`Layer ${index + 1} URL: ${layer.url}, Color: ${layerColor}`);
-        processImage(layer.url, (processedUrl) => {
-            const div = document.createElement("div");
-            div.style.cssText = `
-                background-color: ${layerColor};
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                top: 0;
-                left: 0;
-                z-index: ${index + 1}; /* Pattern */
-                mask-image: url(${processedUrl});
-                -webkit-mask-image: url(${processedUrl});
-                mask-size: ${appState.currentScale}%;
-                -webkit-mask-size: ${appState.currentScale}%;
-                mask-repeat: repeat;
-                -webkit-mask-repeat: repeat;
-                mask-position: center;
-                -webkit-mask-position: center;
-                display: block !important;
-                opacity: 0.8;
-            `;
-            dom.roomMockup.appendChild(div);
-            console.log("Room mask applied:", processedUrl);
-            console.log("Room mockup dimensions:", {
-                width: dom.roomMockup.offsetWidth,
-                height: dom.roomMockup.offsetHeight,
-                top: dom.roomMockup.getBoundingClientRect().top
-            });
-        });
+function updateRoomMockup() {
+    if (!dom.roomMockup) return;
+
+    const bgColorInput = document.getElementById('bgColorInput');
+    const bgColor = bgColorInput ? getColorHex(bgColorInput.value) : '#434341';
+    console.log(`Updating room mockup with bgColor: ${bgColor}`);
+
+    const mockup = dom.roomMockup;
+    mockup.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = mockup.offsetWidth;
+    canvas.height = mockup.offsetHeight;
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const overlayLayers = currentLayers.slice(1);
+    let loadedImages = 0;
+
+    const processImage = (img, color) => {
+        ctx.globalAlpha = 0.7;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        if (color) {
+            ctx.globalCompositeOperation = 'source-atop';
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 1.0;
+
+        loadedImages++;
+        if (loadedImages === overlayLayers.length) {
+            mockup.innerHTML = '';
+            mockup.appendChild(canvas);
+        }
+    };
+
+    overlayLayers.forEach((layer, index) => {
+        const layerIndex = index + 1;
+        const url = layer.imageUrl;
+        const colorInput = appState.layerInputs[index]?.input;
+        const color = colorInput ? getColorHex(colorInput.value) : getColorHex(currentLayers[layerIndex]?.color) || '#000000';
+        console.log(`Layer ${layerIndex} URL: ${url}, Color: ${color}`);
+        if (url && url !== 'undefined' && url !== 'no-url') {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => processImage(img, color);
+            img.onerror = () => {
+                console.error(`Canvas image load failed: ${url}`);
+                loadedImages++;
+                if (loadedImages === overlayLayers.length) {
+                    mockup.innerHTML = '';
+                    mockup.appendChild(canvas);
+                }
+            };
+            img.src = url;
+        } else {
+            console.warn(`Layer ${layerIndex} has no valid URL (${url}), skipping rendering in roomMockup.`);
+            loadedImages++;
+            if (loadedImages === overlayLayers.length) {
+                mockup.innerHTML = '';
+                mockup.appendChild(canvas);
+            }
+        }
     });
-    const overlay = document.createElement("div");
-    overlay.style.cssText = `
-        background-image: url(./mockups/English-Countryside-Bedroom-1.png);
-        background-size: cover !important;
-        background-repeat: no-repeat;
-        background-position: center top;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        z-index: 110; /* Image on top */
-    `;
-    dom.roomMockup.appendChild(overlay);
-};
+
+    if (overlayLayers.length === 0) {
+        mockup.innerHTML = '';
+        mockup.appendChild(canvas);
+    }
+}
 
 // Updated processImage function with contrast maximization
 const processImage = (url, callback, layerColor = '#7f817e', gamma = 2.2) => {
@@ -734,18 +831,53 @@ const processImage = (url, callback, layerColor = '#7f817e', gamma = 2.2) => {
     img.onerror = () => console.error(`Canvas image load failed: ${url}`);
 };
 
-const updateDisplays = () => {
+function updateDisplays() {
     console.log("Updating displays...");
-    console.log("DOM elements:", {
-        preview: !!dom.preview,
-        roomMockup: !!dom.roomMockup,
-        coordinatesContainer: !!dom.coordinatesContainer,
-        layerInputsContainer: !!dom.layerInputsContainer,
-        curatedColorsContainer: !!dom.curatedColorsContainer
+    console.log("DOM elements:", dom);
+
+    const bgColorInput = document.getElementById('bgColorInput');
+    if (bgColorInput) {
+        const bgColorName = bgColorInput.value;
+        const bgColorHex = getColorHex(bgColorName) || getColorHex(currentLayers[0]?.color) || '#434341';
+        console.log(`Updating preview with bgColor from input: ${bgColorName} converted to: ${bgColorHex}`);
+        const bgDiv = document.createElement('div');
+        bgDiv.style.position = 'absolute';
+        bgDiv.style.top = '0';
+        bgDiv.style.left = '0';
+        bgDiv.style.width = '100%';
+        bgDiv.style.height = '100%';
+        bgDiv.style.backgroundColor = bgColorHex;
+        if (dom.preview) dom.preview.innerHTML = '';
+        if (dom.preview) dom.preview.appendChild(bgDiv);
+    }
+
+    appState.layerInputs.forEach((layer, index) => {
+        const layerIndex = index + 1;
+        const layerUrl = currentLayers[layerIndex]?.imageUrl;
+        const layerColorName = layer.input.value;
+        const layerColorHex = getColorHex(layerColorName) || getColorHex(currentLayers[layerIndex]?.color) || '#000000';
+        console.log(`Layer ${layerIndex} URL: ${layerUrl}, Color: ${layerColorHex}`);
+        if (layerUrl && layerUrl !== 'undefined' && layerUrl !== 'no-url' && dom.preview) {
+            const layerDiv = document.createElement('div');
+            layerDiv.style.position = 'absolute';
+            layerDiv.style.top = '0';
+            layerDiv.style.left = '0';
+            layerDiv.style.width = '100%';
+            layerDiv.style.height = '100%';
+            layerDiv.style.background = `url(${layerUrl}) no-repeat center`;
+            layerDiv.style.backgroundSize = 'cover';
+            layerDiv.style.opacity = '0.7';
+            layerDiv.style.backgroundColor = layerColorHex;
+            dom.preview.appendChild(layerDiv);
+        } else {
+            console.warn(`Layer ${layerIndex} has no URL (${layerUrl}), skipping rendering.`);
+        }
     });
-    updatePreview();
+
+    console.log("Total layers rendered:", appState.layerInputs.length + (bgColorInput ? 1 : 0));
+
     updateRoomMockup();
-};
+}
 
 const initialize = async () => {
     try {
@@ -761,13 +893,13 @@ const initialize = async () => {
             sessionStorage.setItem("appLaunched", "true");
         }
 
-        // Initialize DOM elements
         const dom = {
             patternScaleSlider: document.getElementById('patternScale'),
-            preview: document.getElementById('preview'), // Adjust if ID differs
+            preview: document.getElementById('preview'),
             roomMockup: document.getElementById('roomMockup'),
             layerInputsContainer: document.getElementById('layerInputsContainer'),
-            colorControls: document.getElementById('colorControls')
+            colorControls: document.getElementById('colorControls'),
+            coordinatesContainer: document.getElementById('coordinatesContainer')
         };
         console.log("Initial DOM check:", dom);
 
@@ -788,8 +920,8 @@ const initialize = async () => {
             console.log("Records:", records);
             console.log("First record:", records[0]);
 
-            const curatedColorsRaw = records.length > 0 && records[0]?.['CURATED COLORS']
-                ? records[0]['CURATED COLORS']
+            const curatedColorsRaw = records.length > 0 && records[0]?.curatedColors
+                ? records[0].curatedColors
                 : "";
             const curatedColors = curatedColorsRaw
                 ? curatedColorsRaw.split(',').map(c => c.trim())
@@ -800,28 +932,28 @@ const initialize = async () => {
 
             const patternsForCollection = records.map(record => {
                 console.log(`Field names for record ${record.id}:`, Object.keys(record));
-                const rawName = record.name || "Unknown Pattern";
+                const rawName = record.rawName || record.name || "Unknown Pattern";
                 const derivedName = rawName
-                    .replace(/^\d+[A-Z]*\d*\s*-\s*/, '')
-                    .replace(/\s*-\s*(MULTIPLE COLORS VERSION \d+|LAYER SEPARATIONS|DESIGN|PATTERN|COLOR SEPARATIONS|.*24X24.*)$/i, '')
+                    .replace(/^\d+[A-Z]*\d*\s*-\s*/, '') // Remove prefix
+                    .replace(/\s*-\s*(MULTIPLE COLORS VERSION \d+|LAYER SEPARATIONS|DESIGN|PATTERN|COLOR SEPARATIONS|.*24X24.*|LINEN ON ALCHEMY)$/i, '') // Remove suffixes
                     .trim();
                 console.log(`Derived name for "${rawName}": "${derivedName}"`);
                 return {
                     id: record.id,
-                    rawName: record.rawName,
+                    rawName: rawName,
                     name: derivedName,
-                    number: record.number,
-                    collection: record.collection,
+                    number: record.number || "",
+                    collection: record.collection || "",
                     layers: record.layers ? record.layers.map(attachment => attachment.url) : [],
-                    curatedColors: record['CURATED COLORS'] ? record['CURATED COLORS'].split(',').map(c => c.trim()) : curatedColors,
+                    curatedColors: record.curatedColors ? record.curatedColors.split(',').map(c => c.trim()) : curatedColors,
                     thumbnail: record.thumbnail && record.thumbnail.length > 0 ? record.thumbnail[0].url : "",
-                    coordinatePrints: record.coordinatePrints || [],
+                    coordinatePrints: record.coordinatePrints || "",
                     'LAYER LABELS': record['LAYER LABELS'] || ""
                 };
             });
 
             collectionsData.push({
-                name: tableName.replace(/^\d+ - /, ""),
+                name: tableName.replace(/^\d+ - /, "").toLowerCase(),
                 patterns: patternsForCollection,
                 curatedColors: curatedColors,
             });
@@ -845,19 +977,8 @@ const initialize = async () => {
 
         const adjustLayout = () => {
             try {
-                if (dom.preview) {
-                    dom.preview.style.height = `${dom.preview.offsetWidth}px`;
-                }
-                if (dom.roomMockup) {
-                    const mockupWidth = dom.roomMockup.offsetWidth;
-                    dom.roomMockup.style.height = `${mockupWidth * 0.7533}px`; // 75.33% aspect ratio
-                }
-                if (dom.layerInputsContainer) {
-                    dom.layerInputsContainer.style.height = 'auto';
-                    dom.layerInputsContainer.style.maxHeight = '80vh';
-                    dom.layerInputsContainer.style.overflowY = 'auto';
-                }
-                // Debug sizes
+                if (dom.preview) dom.preview.style.height = `${dom.preview.offsetWidth}px`;
+                if (dom.roomMockup) dom.roomMockup.style.height = `${dom.roomMockup.offsetWidth * 0.7533}px`;
                 console.log("Color Controls Width:", dom.colorControls?.offsetWidth || 'N/A');
                 console.log("Room Mockup Width:", dom.roomMockup?.offsetWidth || 'N/A');
             } catch (error) {

@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Main Container Structure */
+#mainContainer {
+    @apply grid grid-cols-[200px_1fr] grid-rows-[auto_auto_1fr] min-h-screen relative;
+}
+
+/* Main content layout */
+#mainContent {
+    @apply grid grid-cols-[minmax(565px,1fr)_minmax(220px,1fr)_minmax(600px,1fr)] justify-center items-start max-w-[1400px] p-4 gap-20 col-start-2;
+}
+
+/* Header */
+#header {
+    @apply text-center py-6 col-span-full; /* Increased padding */
+}
+
+/* Curated Colors Container */
+#curatedColorsContainer {
+    @apply flex flex-wrap justify-center gap-4 py-4; /* Added spacing and flex-wrap */
+}
+
+.curated-color-container {
+    @apply flex items-center justify-center;
+}
+
+.curated-color-circle {
+    @apply w-24 h-24 rounded-full overflow-hidden relative flex items-center justify-center;
+}
+
+/* Color Prompt */
+#colorPrompt {
+    @apply text-center py-6 mb-10; /* Increased padding */
+}
+
+#colorPrompt h3 {
+    @apply text-2xl font-bold;
+}
+
+/* Container for preview and room mockup */
+#previewMockupContainer {
+    @apply contents w-full;
+}
+
+/* Preview */
+#preview {
+    @apply w-[565px] h-[630px] overflow-hidden relative z-0 flex-shrink-0;
+}
+
+/* Room Mockup */
+#roomMockup {
+    @apply w-[600px] max-w-[600px] pb-[75.33%] h-0 overflow-hidden relative z-0 flex-shrink-0 ml-20;
+}
+
+#roomMockup img,
+#roomMockup .blend-layer {
+    @apply w-full h-full object-cover;
+}
+
+/* Color controls */
+#colorControls {
+    @apply flex flex-col items-center justify-start gap-2 p-2 max-w-[220px] z-10 relative;
+}
+
+/* Pattern Preview Wrapper */
+#patternPreviewWrapper {
+    @apply flex-grow-0 flex-shrink-0 max-w-[565px] w-full;
+}
+
+/* Pattern Preview */
+#patternPreview {
+    @apply max-w-[565px] w-full flex-shrink-0 text-center;
+}
+
+#patternPreview h2,
+#patternName {
+    @apply mt-2 text-base text-[#f0e6d2] text-center break-words;
+}
+
+/* Coordinates Section */
+#coordinatesSection {
+    @apply col-start-3 flex flex-col items-center p-4 text-center w-full mt-[-120px];
+}
+
+#coordinatesContainer {
+    @apply flex justify-center items-center relative w-full min-h-[300px] overflow-visible max-w-[600px];
+}
+
+.positioning-wrapper {
+    @apply relative flex justify-center flex-wrap max-w-[600px] mx-auto;
+}
+
+.coordinate-box {
+    @apply w-[150px] h-[150px] rounded-lg flex items-center justify-center transition duration-300 ease-in-out absolute;
+    transform: translate(-50%, -50%) translate(var(--x-offset), var(--x-offset));
+}
+
+.coordinate-box:hover {
+    @apply scale-130 z-10 shadow-lg;
+}
+
+/* Left Sidebar */
+#leftSidebar {
+    @apply fixed left-0 top-0 bottom-0 w-[200px] p-4 z-20 shadow-lg bg-[#1a202c] mt-[calc(140px+2.5rem)];
+}
+
+#leftSidebar h4 {
+    @apply text-[#b08d49];
+}
+
+#leftSidebar a {
+    @apply block p-2 rounded;
+}
+
+#leftSidebar a:hover {
+    @apply bg-[#2d3748];
+}
+
+/* Collection Thumbnails */
+#collectionThumbnails {
+    @apply flex flex-col gap-4 mt-4;
+}

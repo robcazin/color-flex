@@ -1138,7 +1138,7 @@ aside a:hover {
 /* === Coordinates Section === */
 #coordinatesSection {
     @apply flex flex-col items-center p-4 text-center w-full;
-    margin-top: -300px; /* Maintain the negative margin for overlay effect */
+    margin-top: 0px; /* Maintain the negative margin for overlay effect */
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
