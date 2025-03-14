@@ -538,7 +538,7 @@ img {
   align-items: flex-start;
   max-width: 1400px;
   padding: 0rem 1rem 1rem;
-  /* margin: 0 auto; */
+  margin-left: 200px;  
   z-index: 1;
   gap: 40px;
   grid-column: 2;
