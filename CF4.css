@@ -609,12 +609,22 @@ img {
   flex-direction: column;
   align-items: center; /* Center horizontally */
   justify-content: flex-start;
-  gap: 8px;
-  padding: 8px;
+  gap: .5rem;
+  padding: .5rem;
   max-width: 220px;
+  width: 100%;
   z-index: 10;
   position: relative;
 }
+#colorControls h2 {
+  width: 100%; /* Match parent width */
+  text-align: center; /* Ensure text is centered */
+  margin-bottom: 0.5rem;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+
 
 /* Pattern Preview Wrapper */
 #patternPreviewWrapper {

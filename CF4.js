@@ -178,8 +178,8 @@ const createColorInput = (labelText, id, initialColor, isBackground = false) => 
     container.className = "layer-input-container";
     const label = document.createElement("div");
     label.className = "layer-label";
-    label.textContent = labelText || "Unknown Layer"; // Fallback label
-    console.log(`Creating color input with label: ${labelText}, ID: ${id}`); // Debug
+    label.textContent = labelText || "Unknown Layer";
+    console.log(`Creating color input with label: ${labelText}, ID: ${id}`);
     const circle = document.createElement("div");
     circle.className = "circle-input";
     circle.id = `${id}Circle`;
@@ -188,8 +188,10 @@ const createColorInput = (labelText, id, initialColor, isBackground = false) => 
     input.className = "layer-input";
     input.id = id;
     input.placeholder = `Enter ${labelText ? labelText.toLowerCase() : 'layer'} color`;
-    input.value = toInitialCaps(initialColor || "Snowbound");
-    circle.style.backgroundColor = getColorHex(input.value);
+    // Strip SW/HGSW number prefix
+    const cleanInitialColor = (initialColor || "Snowbound").replace(/^(SW|HGSW)\d+\s*/i, "").trim();
+    input.value = toInitialCaps(cleanInitialColor);
+    circle.style.backgroundColor = getColorHex(initialColor || "Snowbound"); // Use full name for hex
     container.append(label, circle, input);
     if (dom.layerInputsContainer) {
         dom.layerInputsContainer.appendChild(container);
@@ -198,25 +200,22 @@ const createColorInput = (labelText, id, initialColor, isBackground = false) => 
     }
 
     const layerData = { input, circle, isBackground };
-    appState.layerInputs.push(layerData);
+    if (!appState.layerInputs.some(li => li.input.id === id)) {
+        appState.layerInputs.push(layerData);
+    }
 
     circle.addEventListener("click", () => {
         appState.lastSelectedLayer = layerData;
         highlightActiveLayer(circle);
-        console.log("Layer selected:", labelText);
-        console.log("Before popup call, localStorage.hidePopup:", localStorage.getItem("hidePopup"));
         if (localStorage.getItem("hidePopup") !== "true") {
-            console.log("Attempting to show popup for layer selection");
             showPopupMessage("🎨 Now, click a curated color to set this color, OR enter an SW name.", "hidePopup");
         }
-        console.log("After popup call");
     });
 
     const updateColor = () => {
         const formatted = toInitialCaps(input.value.trim());
         input.value = formatted;
         const hex = getColorHex(formatted) || getColorHex("Snowbound");
-        console.log("Updating circle color to:", hex);
         circle.style.backgroundColor = hex;
         updateDisplays();
     };
