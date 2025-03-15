@@ -12,13 +12,13 @@
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Island+Moments&family=Special+Elite&display=swap" rel="stylesheet">
     <!-- Use local Airtable library -->
     <script src="./js/airtable.browser.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 </head>
 <body class="bg-gray-900 text-white">
 <!-- Main Header -->
 <header id="mainHeader" class="relative flex justify-between items-center px-8 py-4 pb-8 w-full bg-[#f1eee7]">
-    <img src="./img/logo-flower-pot.png" alt="Potted Plant" class="h-32">
+    <img src="./img/logo-flower-pot.png" alt="Potted Plant" class="flower-pot h-32">
     <img src="./img/SC-header-mage.jpg" alt="Saffron Cottage" class="h-28">
     <div class="camelionImage">
         <img src="./img/camelion.png" alt="Featuring Custom Color" class="h-28">
@@ -49,10 +49,17 @@
                     <h2 class="text-lg font-semibold">Pattern Preview</h2>
                     <div id="preview" class="w-[565px] h-[630px] overflow-hidden relative z-0 flex-shrink-0 bg-[#434341]"></div>
                     <h2 id="patternName" class="mt-2 text-base text-[#f0e6d2] text-center break-words">FARM TOILE</h2>
+                    <button id="printButton" class="mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                    </button>                
                 </div>
             </div>
         </section>
-        <div id="colorControls" class="flex flex-col items-center justify-center max-w-[220px] z-10 relative px24">
+        <div id="colorControls" class="flex flex-col ">
             <!-- <div id="colorControls" class="flex flex-col items-center justify-start gap-2 p-2 max-w-[220px] z-10 relative"> -->
                 <h2 class="text-lg text-center mb-2">Background & Layers</h2>
             <div id="layerInputsContainer" class="grid"></div>
@@ -81,6 +88,5 @@
         </div>
     </div>
     <script src="CF4.js"></script>
-    <!-- <script src="test.js"></script> -->
 </body>
 </html>

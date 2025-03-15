@@ -58,8 +58,8 @@ h5 {
 }
 
 .circle-input {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   /* border: 2px solid #888; */
   margin-bottom: 5px;
@@ -101,6 +101,7 @@ select {
 .layer-input {
   width: 120px;
   max-width: 180px; 
+  width: 100%;
   text-align: center;
   padding: 0px;
   border-radius: 4px;
@@ -112,12 +113,23 @@ select {
 
 /* Add label styling */
 .layer-label {
+  width: 100%;
   font-family: "Special Elite", serif;
   color: #f0e6d2;
+  background-color: #434341;
   margin-bottom: 8px;
   text-align: center;
-  font-size: 1.1rem;
+  font-size: .8rem;
 }
+.layer-label {
+  text-align: center;
+  /* padding-right: 0.5rem; */
+  max-width: 100px; /* Match grid column width */
+  white-space: nowrap; /* Prevent wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis for long text */
+}
+
 
 /* Adjust container alignment */
 .layer-input-container {
@@ -551,6 +563,11 @@ img {
   grid-column: 1 / -1;
 }
 
+.flower-pot {
+  margin-left: 20px;
+  margin-bottom: -20px;
+  width: 100px;
+}
 /* Color Prompt */
 #colorPrompt {
   /* font-size: 80px; */
@@ -564,6 +581,10 @@ img {
 #previewMockupContainer {
   display: contents;
   width: 100%;
+}
+#previewMockupContainer h2{
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
 
 /* Preview */
@@ -593,7 +614,7 @@ img {
   aspect-ratio: unset !important;
   z-index: 0;
   margin-left: 65px;
-  margin-top: 40px;
+  margin-top: 60px;
 }
 
 #roomMockup img,
@@ -609,17 +630,19 @@ img {
   flex-direction: column;
   align-items: center; /* Center horizontally */
   justify-content: flex-start;
-  gap: .5rem;
+  gap: 1.5rem;
   padding: .5rem;
   max-width: 220px;
   width: 100%;
   z-index: 10;
   position: relative;
+  margin-left: 18px;
 }
 #colorControls h2 {
   width: 100%; /* Match parent width */
   text-align: center; /* Ensure text is centered */
   margin-bottom: 0.5rem;
+  /* margin-left: 40px; */
   font-size: 1.125rem;
   line-height: 1.75rem;
 }
@@ -645,7 +668,7 @@ img {
 
 #patternPreview h2,
 #patternName {
-  margin-top: 10px;
+  margin-top: 24px;
   font-size: 1rem;
   color: #f0e6d2;
   text-align: center;
@@ -663,7 +686,7 @@ img {
   width: 100%;
   margin-left: 50px;
   margin-right: auto;
-  margin-top: -250px; /* Adjusted to pull up closer */
+  margin-top: -280px; /* Adjusted to pull up closer */
 }
 
 #coordinatesContainer {
@@ -675,7 +698,7 @@ img {
   min-height: 300px;
   overflow: visible;
   max-width: 600px;
-  margin-top: -70px; /* Adjusted to pull up closer */
+  margin-top: -90px; /* Adjusted to pull up closer */
 }
 
 .positioning-wrapper {
@@ -828,6 +851,37 @@ img {
 .popup-container button:hover {
   background-color: #606e74;
 }
+
+.sc-logo {
+  width: 300px !important;
+  height: auto;
+  margin-bottom: 20px;
+  display: block;
+  margin: 0 auto 20px;
+}
+img {
+  max-width: 100%;
+  height: auto;
+  margin: 20px auto;
+  display: block;
+}
+
+.print-container {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#printButton svg {
+  width: 24px;
+  height: 24px;
+  stroke: #b7a451; /* Match your theme */
+}
+
+
 /* COLLECTIONS */
 
 /* .collection-card {

@@ -1,4 +1,4 @@
-console.log("Running app2.js version: CLEAN_2025-03-04_v19");
+console.log("Running CF4.js version: CLEAN_2025-03-15_v30");
 
 // Add to your global scope or appState
 let currentPattern = null;
@@ -27,7 +27,7 @@ document.querySelectorAll(".thumbnail").forEach(thumb => {
         if (selectedPattern.curatedColors && selectedPattern.curatedColors.length > 0) {
             backgroundColor = selectedPattern.curatedColors[0];
         } else {
-            const topRow = patterns.find(p => p.number && p.number.endsWith("-100") && p.collection === selectedPattern.collection);
+            const topRow = patterns.find(p => p.number && p.number.endsWith("-000") && p.collection === selectedPattern.collection);
             backgroundColor = topRow && topRow.curatedColors && topRow.curatedColors.length > 0
                 ? topRow.curatedColors[0]
                 : "#ffffff";
@@ -112,6 +112,7 @@ const appState = {
     cachedLayerPaths: [],
     lastSelectedLayer: null,
     collectionsData: null,
+    curatedColors: []
 };
 
 // DOM Cache - Lazy load after DOMContentLoaded
@@ -148,7 +149,7 @@ const getColorHex = (colorName) => {
         console.warn("No color name provided, returning default #FF0000");
         return "#FF0000";
     }
-    const cleanName = colorName.replace(/^(SW|HGSW)\s*\d+\s*/i, "").trim().toLowerCase();
+    const cleanName = colorName.replace(/^(SW)\s*\d+\s*/i, "").trim().toLowerCase();
     console.log("Cleaned color name:", cleanName);
     const color = colorData.find(c => c.color_name.toLowerCase() === cleanName);
     if (color) {
@@ -161,14 +162,14 @@ const getColorHex = (colorName) => {
 };
 
 const fallbackCuratedColors = [
-    "SW 7069 Iron Ore",
+    "SW7069 Iron Ore",
     "SW7067 Cityscape",
     "SW3441 Foothills",
     "SW6135 Ecru",
     "SW7699 Rustic City",
     "SW6206 Oyster Bay",
     "SW6186 Dried Thyme",
-    "HGSW1472 Slate Tile",
+    "SW1472 Slate Tile",
     "SW0006 Toile Red"
 ];
 
@@ -306,26 +307,17 @@ const handleCollectionSelection = (collection) => {
 
 const handlePatternSelection = (patternName) => {
     console.log(`Attempting to select pattern: ${patternName}`);
-    appState.selectedPattern = appState.selectedCollection.patterns.find(
-        (p) => p.name.toUpperCase() === patternName.toUpperCase()
-    );
-    if (!appState.selectedPattern) {
-        console.error(`Pattern "${patternName}" not found in ${appState.selectedCollection.name}`);
-        appState.selectedPattern = appState.selectedCollection.patterns[0];
-        console.warn(`Falling back to first pattern: ${appState.selectedPattern?.name || 'None'}`);
-        if (!appState.selectedPattern) {
-            console.error("No patterns available in collection");
-            return;
-        }
-    }
-
+    const pattern = appState.selectedCollection.patterns.find(
+        p => p.name.toUpperCase() === patternName.toUpperCase()
+    ) || appState.selectedCollection.patterns[0];
+    appState.selectedPattern = pattern;
     console.log("Selected pattern:", appState.selectedPattern);
-    
+
     let backgroundColor;
     if (appState.selectedPattern.curatedColors && appState.selectedPattern.curatedColors.length > 0) {
         backgroundColor = appState.selectedPattern.curatedColors[0];
     } else {
-        const topRow = appState.selectedCollection.patterns.find(p => p.number && p.number.endsWith("-100") && p.collection === appState.selectedPattern.collection);
+        const topRow = appState.selectedCollection.patterns.find(p => p.number && p.number.endsWith("-000") && p.collection === appState.selectedPattern.collection);
         backgroundColor = topRow && topRow.curatedColors && topRow.curatedColors.length > 0
             ? topRow.curatedColors[0]
             : "#ffffff";
@@ -337,21 +329,14 @@ const handlePatternSelection = (patternName) => {
     const backgroundLayer = {
         imageUrl: null,
         color: backgroundColor,
-        label: "background"
+        label: "Background" // Fixed label, not from LAYER LABELS
     };
     currentLayers.push(backgroundLayer);
 
     const overlayLayers = appState.selectedPattern.layers || [];
     overlayLayers.forEach((layerUrl, index) => {
-        const filename = layerUrl.split('/').pop();
-        const layerDescription = filename
-            .split(' - ')
-            .slice(2)
-            .join(' - ')
-            .replace('.jpg', '')
-            .trim();
-        const label = layerDescription || `Layer ${index + 1}`;
-        console.log(`Derived label for layer ${index + 1} from "${filename}": "${label}"`); // Debug
+        const label = pattern.layerLabels[index] || `Layer ${index + 1}`; // Start at index 0 for overlay layers
+        console.log(`Using LAYER LABELS for layer ${index + 1}: "${label}"`);
         currentLayers.push({
             imageUrl: layerUrl,
             color: appState.selectedPattern.curatedColors[index + 1] || "#000000",
@@ -377,6 +362,7 @@ const handlePatternSelection = (patternName) => {
     if (dom.patternName) dom.patternName.textContent = appState.selectedPattern.name;
 
     const curatedColors = appState.selectedCollection.curatedColors || fallbackCuratedColors;
+    appState.curatedColors = curatedColors;
     console.log("Collection curated colors:", curatedColors);
 
     try {
@@ -388,6 +374,8 @@ const handlePatternSelection = (patternName) => {
         console.error("Error in handlePatternSelection:", error);
     }
 };
+
+
 
 const populateCuratedColors = (colors) => {
     console.log("Populating curated colors:", colors);
@@ -621,78 +609,127 @@ const updatePreview = () => {
 
 const updateRoomMockup = () => {
     if (!dom.roomMockup) {
-        console.error("roomMockup not found in DOM");
+        console.error("roomMockup element not found in DOM");
         return;
     }
     const bgInput = appState.layerInputs[0]?.input;
     if (!bgInput) {
-        console.error("Background input not found in appState.layerInputs");
+        console.error("Background input not found");
         return;
     }
-    const bgColor = getColorHex(bgInput.value || "Iron Ore");
+    const bgColor = getColorHex(bgInput.value);
     console.log("Updating room mockup with bgColor from input:", bgInput.value, "converted to:", bgColor);
 
     dom.roomMockup.classList.remove("aspect-square");
     dom.roomMockup.classList.add("w-[600px]", "max-w-[600px]", "pb-[75.33%]", "h-0", "overflow-hidden", "relative", "z-0", "flex-shrink-0");
     dom.roomMockup.innerHTML = "";
 
-    const bgDiv = document.createElement("div");
-    bgDiv.style.cssText = `
-        background-color: ${bgColor};
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 0;
-        opacity: 1; /* Full opacity */
-    `;
-    dom.roomMockup.appendChild(bgDiv);
+    // Create a Canvas for compositing
+    const canvas = document.createElement("canvas");
+    canvas.width = 600;
+    canvas.height = 452; // 75.33% of 600px
+    const ctx = canvas.getContext("2d");
 
-    appState.cachedLayerPaths.forEach((layer, index) => {
+    // Draw background as a fallback
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const renderCanvas = () => {
+        console.log("Rendering Canvas to #roomMockup");
+        dom.roomMockup.innerHTML = "";
+        const img = document.createElement("img");
+        img.src = canvas.toDataURL("image/png");
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.position = "absolute";
+        img.style.top = "0";
+        img.style.left = "0";
+        img.onload = () => {
+            console.log("Room mockup image loaded");
+        };
+        img.onerror = () => {
+            console.error("Failed to load room mockup image");
+        };
+        dom.roomMockup.appendChild(img);
+    };
+
+    // Render the background immediately as a fallback
+    renderCanvas();
+
+    const isHalfDrop = appState.selectedPattern.tilingType === "half-drop";
+    console.log(`updateRoomMockup: Tiling type: ${appState.selectedPattern.tilingType}`);
+
+    const layersPromises = appState.cachedLayerPaths.map((layer, index) => {
         const layerColor = getColorHex(appState.layerInputs[index + 1]?.input.value || "Snowbound");
-        console.log(`Layer ${index + 1} URL: ${layer.url}, Color: ${layerColor}`);
-        processImage(layer.url, (processedUrl) => {
-            const div = document.createElement("div");
-            div.style.cssText = `
-                background-color: ${layerColor};
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                top: 0;
-                left: 0;
-                z-index: ${index + 1};
-                mask-image: url(${processedUrl});
-                -webkit-mask-image: url(${processedUrl});
-                mask-size: ${appState.currentScale}%;
-                -webkit-mask-size: ${appState.currentScale}%;
-                mask-repeat: repeat;
-                -webkit-mask-repeat: repeat;
-                mask-position: center;
-                -webkit-mask-position: center;
-                display: block !important;
-                opacity: 1; /* Full opacity, was 0.8 */
-            `;
-            dom.roomMockup.appendChild(div);
+        return new Promise((resolve) => {
+            processImage(layer.url, (processedUrl) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.src = processedUrl;
+                img.onload = () => {
+                    console.log(`Layer ${index + 1} mask loaded:`, processedUrl);
+                    const tempCanvas = document.createElement("canvas");
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    const tempCtx = tempCanvas.getContext("2d");
+
+                    const baseTileSize = 400;
+                    const scale = appState.currentScale / 100;
+                    const tileWidth = baseTileSize * scale;
+                    const tileHeight = baseTileSize * scale * (img.height / img.width);
+                    console.log(`Layer ${index + 1} tile dimensions: ${tileWidth}x${tileHeight}`);
+
+                    const offsetY = isHalfDrop ? tileHeight / 2 : 0;
+
+                    for (let x = 0; x < canvas.width; x += tileWidth) {
+                        const isOddColumn = Math.floor(x / tileWidth) % 2 !== 0;
+                        const yOffset = isOddColumn && isHalfDrop ? offsetY : 0;
+                        for (let y = -yOffset; y < canvas.height; y += tileHeight) {
+                            tempCtx.drawImage(img, x, y, tileWidth, tileHeight);
+                        }
+                    }
+
+                    tempCtx.globalCompositeOperation = "source-in";
+                    tempCtx.fillStyle = layerColor;
+                    tempCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.globalCompositeOperation = "source-over";
+                    ctx.drawImage(tempCanvas, 0, 0);
+                    resolve();
+                };
+                img.onerror = () => {
+                    console.error(`Failed to load mask image for layer ${index + 1}:`, processedUrl);
+                    resolve();
+                };
+            }, layerColor);
         });
     });
 
-    const overlay = document.createElement("div");
-    overlay.style.cssText = `
-        background-image: url(./mockups/English-Countryside-Bedroom-1.png);
-        background-size: cover !important;
-        background-repeat: no-repeat;
-        background-position: center top;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        z-index: 110;
-        opacity: 1; /* Ensure overlay doesn’t darken */
-    `;
-    dom.roomMockup.appendChild(overlay);
+    Promise.all(layersPromises)
+        .then(() => {
+            console.log("All layers processed, rendering with layers");
+            renderCanvas();
+
+            const overlay = new Image();
+            overlay.src = "./mockups/English-Countryside-Bedroom-1.png";
+            overlay.onload = () => {
+                console.log("Room overlay loaded");
+                ctx.globalCompositeOperation = "source-over";
+                ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+                renderCanvas();
+            };
+            overlay.onerror = () => {
+                console.error("Failed to load room overlay image: ./mockups/English-Countryside-Bedroom-1.png");
+            };
+        })
+        .catch(error => {
+            console.error("Error processing layers in updateRoomMockup:", error);
+        });
 };
+
+
+
+// ... (Rest of your existing code unchanged) ...
 
 // Updated processImage function with contrast maximization
 const processImage = (url, callback, layerColor = '#7f817e', gamma = 2.2) => {
@@ -826,22 +863,30 @@ const initialize = async () => {
 
             const patternsForCollection = patternRecords.map(record => {
                 const recordFields = record.fields || {};
+                console.log(`Raw record fields for ${record.id}:`, recordFields); // Debug all fields
                 const rawName = recordFields.Name || recordFields.NAME || recordFields.name || "Unknown Pattern";
                 const derivedName = rawName
                     .replace(/^\d+[A-Z]*\d*\s*-\s*/, '')
                     .replace(/\s*-\s*(MULTIPLE COLORS VERSION \d+|LAYER SEPARATIONS|DESIGN|PATTERN|COLOR SEPARATIONS|.*24X24.*)$/i, '')
                     .trim();
-                return {
+                const layerLabelsRaw = recordFields["LAYER LABELS"] || "";
+                const layerLabels = layerLabelsRaw.split(',').map(l => l.trim());
+                const tilingStyle = recordFields["TILING TYPE"] || ""; // Fetch without defaulting to "regular" yet
+                console.log(`Pattern ${derivedName}: Raw TILING STYLE = "${tilingStyle}"`); // Log raw value
+                const tilingType = tilingStyle.toLowerCase() === "half-drop" ? "half-drop" : "regular"; // Explicit check
+                console.log(`Pattern ${derivedName}: TILING TYPE = ${tilingType}`);
+                    return {
                     id: record.id,
                     rawName: rawName,
                     name: derivedName,
                     number: recordFields.NUMBER || "",
                     collection: recordFields.COLLECTION || "",
                     layers: recordFields['LAYER SEPARATIONS'] ? recordFields['LAYER SEPARATIONS'].map(attachment => attachment.url) : [],
-                    layerLabel: recordFields["LAYER LABEL"] || "Layer 1", // Use LAYER LABEL
+                    layerLabels: layerLabels,
                     curatedColors: curatedColors,
                     thumbnail: recordFields.THUMBNAIL && recordFields.THUMBNAIL.length > 0 ? recordFields.THUMBNAIL[0].url : "",
-                    coordinatePrints: recordFields["COORDINATE PRINTS"] || []
+                    coordinatePrints: recordFields["COORDINATE PRINTS"] || [],
+                    tilingType: tilingType
                 };
             });
 
@@ -860,40 +905,16 @@ const initialize = async () => {
         appState.currentPattern = appState.collectionsData[0].patterns[0];
         console.log("Initial current pattern:", appState.currentPattern);
 
-        // Set up color controls with 2x3 grid
-        const layerInputsContainer = document.getElementById("layerInputsContainer");
-        layerInputsContainer.innerHTML = ""; // Clear once
-        appState.layerInputs = []; // Reset once
+        appState.currentPattern = appState.collectionsData[0].patterns[0];
+        appState.curatedColors = appState.collectionsData[0].curatedColors;
+        console.log("Initial pattern set:", appState.currentPattern?.name, "coordinates:", appState.currentPattern?.coordinatePrints);
+        populateCoordinates();
 
-        // Background
-        createColorInput("Background", "bgColorInput", "Iron Ore", true);
-        appState.layerInputs[0] = { 
-            input: document.getElementById("bgColorInput"), 
-            circle: document.getElementById("bgColorInputCircle"), 
-            isBackground: true 
-        };
+        if (!appState.layerInputs[0]) {
+            createColorInput("Background", "backgroundColorInput", "Iron Ore");
+            appState.layerInputs[0] = { input: document.getElementById("backgroundColorInput") };
+        }
 
-        // Layer 1 with LAYER LABEL
-        const firstPattern = appState.collectionsData[0].patterns[0];
-        const layerLabel = firstPattern.layerLabel || "Layer 1";
-        createColorInput(layerLabel, "layer1ColorInput", firstPattern.curatedColors[1] || "Snowbound");
-        appState.layerInputs[1] = { 
-            input: document.getElementById("layer1ColorInput"), 
-            circle: document.getElementById("layer1ColorInputCircle") 
-        };
-
-        // Pattern Scale
-        const scaleContainer = document.createElement("div");
-        scaleContainer.className = "layer-input-container";
-        scaleContainer.innerHTML = `
-            <div class="layer-label">Pattern Scale</div>
-            <div class="input-wrapper">
-                <input type="range" id="patternScale" min="10" max="200" value="100" step="10" class="slider">
-            </div>
-        `;
-        layerInputsContainer.appendChild(scaleContainer);
-
-        // Add listeners once
         appState.layerInputs.forEach((layerInput, index) => {
             if (layerInput?.input) {
                 layerInput.input.addEventListener("input", () => {
@@ -905,25 +926,22 @@ const initialize = async () => {
             }
         });
 
-        // Populate coordinates once after inputs are set
-        populateCoordinates();        
+        const displaySize = document.createElement('div');
+        document.body.appendChild(displaySize);
+        displaySize.style.position = 'fixed';
+        displaySize.style.top = '10px';
+        displaySize.style.left = '10px';
+        displaySize.style.background = 'rgba(0,0,0,0.7)';
+        displaySize.style.color = 'white';
+        displaySize.style.padding = '5px';
+        displaySize.style.borderRadius = '5px';
 
-                const displaySize = document.createElement('div');
-                document.body.appendChild(displaySize);
-                displaySize.style.position = 'fixed';
-                displaySize.style.top = '10px';
-                displaySize.style.left = '10px';
-                displaySize.style.background = 'rgba(0,0,0,0.7)';
-                displaySize.style.color = 'white';
-                displaySize.style.padding = '5px';
-                displaySize.style.borderRadius = '5px';
-                
-                function updateSize() {
-                    displaySize.textContent = `Viewport: ${window.innerWidth} x ${window.innerHeight}`;
-                }
-                
-                window.addEventListener('resize', updateSize);
-                updateSize(); // Run initially
+        function updateSize() {
+            displaySize.textContent = `Viewport: ${window.innerWidth} x ${window.innerHeight}`;
+        }
+
+        window.addEventListener('resize', updateSize);
+        updateSize();
 
         return collectionsData;
     } catch (error) {
@@ -931,6 +949,7 @@ const initialize = async () => {
         throw error;
     }
 };
+
 
 const startApp = (collectionsData, collectionName = "FARMHOUSE", patternName = "LANCASTER TOLE") => {
     try {
@@ -962,7 +981,181 @@ const startApp = (collectionsData, collectionName = "FARMHOUSE", patternName = "
     }
 };
 
-// Update DOMContentLoaded
+// Add this new function
+const generatePrintPreview = () => {
+    const pattern = appState.selectedPattern;
+    const collectionName = appState.selectedCollection.name;
+    const patternName = pattern.name;
+
+    console.log("appState.curatedColors:", appState.curatedColors);
+
+    let textContent = `
+        <img src="./img/SC-header-mage.jpg" alt="SC Logo" class="sc-logo">
+        <h2>${toInitialCaps(collectionName)}</h2>
+        <h3>${patternName}</h3>
+        <ul style="list-style: none; padding: 0;">
+    `;
+
+    currentLayers.forEach((layer, index) => {
+        const swNumber = index === 0 ? appState.curatedColors[0] : pattern.curatedColors[index] || "N/A";
+        textContent += `
+            <li>${layer.label} | ${swNumber}</li>
+        `;
+    });
+
+    textContent += "</ul>";
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = 565;
+    canvas.height = 630;
+
+    const bgLayer = dom.preview.children[0];
+    const bgColor = bgLayer.style.backgroundColor || "gray";
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const drawLayers = async () => {
+        for (let i = 0; i < appState.cachedLayerPaths.length; i++) {
+            const layer = appState.cachedLayerPaths[i];
+            const layerDiv = dom.preview.children[i + 1];
+            const layerColor = layerDiv.style.backgroundColor || "gray";
+            const maskUrl = layerDiv.style.webkitMaskImage || layerDiv.style.maskImage || "";
+            const maskSrc = maskUrl.replace(/url\(["']?/, '').replace(/["']?\)/, '');
+
+            // Determine if this is a shadow layer (placeholder logic)
+            const isShadowLayer = layer.name.toLowerCase().includes("shadow"); // Replace with your logic
+            console.log(`Processing layer ${i + 1}: "${layer.name}", Is Shadow: ${isShadowLayer}`);
+
+            if (maskSrc) {
+                try {
+                    const maskImg = new Image();
+                    maskImg.crossOrigin = "Anonymous";
+                    await new Promise((resolve, reject) => {
+                        maskImg.onload = resolve;
+                        maskImg.onerror = reject;
+                        maskImg.src = maskSrc;
+                    });
+
+                    const tempCanvas = document.createElement("canvas");
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    const tempCtx = tempCanvas.getContext("2d");
+
+                    tempCtx.drawImage(maskImg, 0, 0, canvas.width, canvas.height);
+
+                    // Apply appropriate compositing mode
+                    ctx.globalCompositeOperation = isShadowLayer ? "multiply" : "source-over";
+                    console.log(`Using globalCompositeOperation: ${ctx.globalCompositeOperation} for layer ${i + 1}`);
+
+                    tempCtx.globalCompositeOperation = "source-in";
+                    tempCtx.fillStyle = layerColor;
+                    tempCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.drawImage(tempCanvas, 0, 0);
+
+                    // Reset to source-over after shadow layer
+                    if (isShadowLayer) {
+                        ctx.globalCompositeOperation = "source-over";
+                        console.log("Reset to source-over after shadow layer");
+                    }
+                } catch (error) {
+                    console.error(`Failed to load mask for layer ${i + 1}:`, error);
+                }
+            }
+        }
+
+        const previewImage = canvas.toDataURL("image/png");
+        console.log("Canvas created:", previewImage);
+
+        const previewWindow = window.open('', '_blank', 'width=800,height=1200');
+        previewWindow.document.write(`
+            <html>
+                <head>
+                    <title>Print Preview</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+                    <style>
+                        body {
+                            font-family: 'Special Elite', 'Times New Roman', serif !important; /* Force Special Elite, fallback to Times */
+                            padding: 20px;
+                            margin: 0;
+                            display: flex;
+                            justify-content: center;
+                            align-items: flex-start;
+                            min-height: 100vh;
+                            overflow: auto;
+                        }
+                        .print-container {
+                            text-align: center;
+                            max-width: 600px;
+                            width: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                        }
+                        .sc-logo {
+                            width: 300px !important;
+                            height: auto;
+                            margin: 0 auto 20px;
+                            display: block;
+                        }
+                        h1 { font-size: 24px; margin-bottom: 10px; }
+                        h2 { font-size: 20px; margin: 5px 0; }
+                        h3 { font-size: 18px; margin: 5px 0; }
+                        ul { margin: 10px 0; }
+                        li { margin: 5px 0; }
+                        img { max-width: 100%; height: auto; margin: 20px auto; display: block; }
+                        .button-container { margin-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-container">
+                        ${textContent}
+                        <img src="${previewImage}" alt="Pattern Preview">
+                        <div class="button-container">
+                            <button onclick="window.print();">Print</button>
+                            <button onclick="window.close();">Close</button>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        `);
+
+        const logoImg = previewWindow.document.querySelector('.sc-logo');
+        const previewImg = previewWindow.document.querySelector('img[alt="Pattern Preview"]');
+        previewWindow.document.addEventListener('DOMContentLoaded', () => {
+            if (logoImg) {
+                console.log("SC Logo computed width:", logoImg.offsetWidth, "px");
+                const computedStyle = window.getComputedStyle(logoImg);
+                console.log("SC Logo computed style - margin:", computedStyle.marginLeft, computedStyle.marginRight);
+                console.log("SC Logo position:", logoImg.getBoundingClientRect());
+            }
+            if (previewImg) {
+                console.log("Preview Image computed width:", previewImg.offsetWidth, "px");
+                console.log("Preview Image position:", previewImg.getBoundingClientRect());
+            }
+        });
+
+        previewWindow.document.close();
+    };
+
+    drawLayers().catch(error => {
+        console.error("Error generating preview image:", error);
+        const fallbackWindow = window.open('', '_blank', 'width=600,height=400');
+        fallbackWindow.document.write(`
+            <html>
+                <head><title>Print Preview (Text Only)</title><style>body { font-family: 'Special Elite', cursive; padding: 20px; text-align: center; }</style></head>
+                <body>${textContent}<div><button onclick="window.print();">Print</button><button onclick="window.close();">Close</button></div></body>
+            </html>
+        `);
+        fallbackWindow.document.close();
+    });
+};
+
+
+
+// Update DOMContentLoaded to attach the print button listener
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         console.log("DOM content loaded, initializing...");
@@ -977,8 +1170,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             curatedColorsContainer: document.getElementById("curatedColorsContainer"),
             preview: document.getElementById("preview"),
             roomMockup: document.getElementById("roomMockup"),
-            patternScaleSlider: document.getElementById("patternScale"),
             coordinatesContainer: document.getElementById("coordinatesContainer"),
+            printButton: document.getElementById("printButton") // Add print button to DOM cache
         };
         console.log("Initial DOM check:", {
             patternName: !!dom.patternName,
@@ -988,8 +1181,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             curatedColorsContainer: !!dom.curatedColorsContainer,
             preview: !!dom.preview,
             roomMockup: !!dom.roomMockup,
-            patternScaleSlider: !!dom.patternScaleSlider,
-            coordinatesContainer: !!dom.coordinatesContainer
+            coordinatesContainer: !!dom.coordinatesContainer,
+            printButton: !!dom.printButton
         });
 
         const collectionsData = await initialize();
@@ -1006,7 +1199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 console.log("Thumbnail clicked, pattern ID:", patternId);
                 const pattern = appState.selectedCollection.patterns.find(p => p.id === patternId);
                 if (pattern) {
-                    const derivedPatternName = pattern.name; // Use derived name
+                    const derivedPatternName = pattern.name;
                     console.log("Selected pattern name:", derivedPatternName);
                     handlePatternSelection(derivedPatternName);
                 } else {
@@ -1014,6 +1207,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             });
         });
+
+        // Add print button handler
+        dom.printButton.addEventListener("click", () => {
+            console.log("Print button clicked");
+            generatePrintPreview();
+        });
+
     } catch (error) {
         console.error("Error in DOMContentLoaded handler:", error);
     }
