@@ -15,6 +15,7 @@ async function loadLocalCollectionData(collectionName) {
   }
   
 // Add to your global scope or appState
+let colorData = null; // Global declaration
 let currentPattern = null;
 let currentLayers = [];
 let patterns = []; // Populated by initialize
@@ -158,16 +159,18 @@ const loadAirtableData = async (tableName, options = {}) => {
 async function saveLocalData() {
     const collections = [
         { name: '1 - ABUNDANCE COLLECTION', enabled: true },
+        { name: '2 - COVERLETS', enabled: true },
         { name: '3 - ENGLISH COTTAGE', enabled: true },
         { name: '5 - FARMHOUSE', enabled: true },
         { name: '6 - BOTANICALS', enabled: true },
         { name: '7 - DISHED UP', enabled: true },
         { name: '8 - BOMBAY', enabled: true },
         { name: '9 - PAGES', enabled: true },
+        { name: '10 - GALLERIA', enabled: true },
         { name: '12 - OCEANA', enabled: true },
         { name: '13 - ANCIENT TILES', enabled: true },
         { name: '14 - GEOMETRY', enabled: true },
-        { name: '15 - DAMASCUS', enabled: true }
+        { name: '15 - SILK ROAD', enabled: true }
     ];
     const collectionsData = [];
     for (const collection of collections) {
@@ -243,26 +246,33 @@ async function saveLocalData() {
 // Run this in the console after loading CF4.html
 // saveLocalData();
 
-let colorData = [];
 const getColorHex = (colorName) => {
     console.log("getColorHex called with:", colorName);
-    if (!colorName) return "#FF0000"; // Default red for null/undefined
-    const cleanedColorName = colorName.toString().toLowerCase().trim();
-    console.log("Cleaned color name:", cleanedColorName);
-    if (/^#[0-9A-F]{6}$/i.test(cleanedColorName)) return cleanedColorName; // Return hex if valid
+    if (!colorName) {
+        console.warn("No color name provided, returning default #FF0000");
+        return "#FF0000";
+    }
+    let cleanedColorName = colorName.toString().toLowerCase().trim();
+    console.log("Cleaned color name (initial):", cleanedColorName);
+    // Strip SW/HGSW number prefix if present
+    cleanedColorName = cleanedColorName.replace(/^(sw|hgsw)\d+\s*/i, "").trim();
+    console.log("Cleaned color name (after stripping prefix):", cleanedColorName);
+    if (/^#[0-9A-F]{6}$/i.test(cleanedColorName)) {
+        console.log("Valid hex color, returning:", cleanedColorName);
+        return cleanedColorName;
+    }
     if (!colorData || !Array.isArray(colorData)) {
         console.warn("colorData is not loaded or invalid, returning default #FF0000");
         return "#FF0000";
     }
-    const colorEntry = colorData.find(c => c.name.toLowerCase() === cleanedColorName);
-    if (colorEntry) {
-        console.log("Found color hex:", colorEntry.hex);
-        return colorEntry.hex;
+    const colorEntry = colorData.find(c => c && c.color_name && c.color_name.toLowerCase() === cleanedColorName);
+    if (colorEntry && colorEntry.hex) {
+        console.log("Found color hex:", `#${colorEntry.hex}`);
+        return `#${colorEntry.hex}`;
     }
-    console.warn(`Color "${cleanedColorName}" not found, returning default #FF0000`);
-    return "#FF0000"; // Default red if not found
+    console.warn(`Color "${cleanedColorName}" not found in colorData, returning default #FF0000`);
+    return "#FF0000";
 };
-
 
 const fallbackCuratedColors = [
     "SW 7069 Iron Ore",
@@ -593,11 +603,12 @@ const populateCoordinates = () => {
         return;
     }
 
-    const coordinates = appState.currentPattern?.coordinatePrints || [];
-    console.log("Coordinates data:", coordinates);
-
     dom.coordinatesContainer.innerHTML = "";
     dom.coordinatesContainer.style.position = "relative";
+
+    // Get coordinates from current pattern
+    const coordinates = appState.currentPattern?.coordinates || [];
+    console.log("Coordinates data:", coordinates);
 
     if (!coordinates || coordinates.length === 0) {
         dom.coordinatesContainer.textContent = "No matching coordinates available.";
@@ -609,17 +620,16 @@ const populateCoordinates = () => {
     const numCoordinates = coordinates.length;
     const xStep = 80; // Horizontal spacing
     const yStep = 60; // Vertical stagger
-    const totalXSpan = (numCoordinates - 1) * xStep; // Total horizontal span
-    const totalYSpan = numCoordinates > 1 ? yStep : 0; // Total vertical span
-    const xStart = -(totalXSpan / 2); // Center horizontally
-    const yStart = -(totalYSpan / 2.5); // Center vertically, adjusted
+    const totalXSpan = (numCoordinates - 1) * xStep;
+    const totalYSpan = numCoordinates > 1 ? yStep : 0;
+    const xStart = -(totalXSpan / 2);
+    const yStart = -(totalYSpan / 2.5);
     console.log(`Group span - X: ${totalXSpan}px, Y: ${totalYSpan}px, xStart: ${xStart}px, yStart: ${yStart}px`);
 
-    coordinates.forEach((image, index) => {
+    coordinates.forEach((coord, index) => {
         const div = document.createElement("div");
-        div.className = "coordinate-item"; // Removed pre-colored-image class
+        div.className = "coordinate-item";
 
-        // Staggered offsets from centered start
         const xOffset = xStart + (index * xStep);
         const yOffset = yStart + 10 + (index % 2 === 0 ? yStep : 0);
         div.style.setProperty("--x-offset", `${xOffset}px`);
@@ -629,13 +639,32 @@ const populateCoordinates = () => {
         console.log(`Coordinate ${index + 1} - x-offset: ${xOffset}px, y-offset: ${yOffset}px`);
 
         const img = document.createElement("img");
-        img.src = image.url; // Updated to use image.url
-        img.alt = `Coordinate ${index + 1}`;
-        img.style.width = "150px"; // Fixed width for consistency
-        img.style.height = "auto"; // Maintain aspect ratio
+        // Construct image path based on collection and pattern
+        const imagePath = `./data/collections/${coord.collection}/coordinates/${coord.pattern}.jpg`;
+        img.src = imagePath;
+        img.alt = `${coord.pattern} Coordinate ${index + 1}`;
+        img.style.width = "150px";
+        img.style.height = "auto";
         img.style.objectFit = "cover";
 
+        // Handle image loading errors gracefully
+        img.onerror = () => {
+            console.warn(`Failed to load coordinate image: ${img.src}`);
+            img.remove(); // Remove failed image
+            if (div.children.length === 0) {
+                div.remove(); // Remove empty container
+            }
+        };
+
+        // Optional: Add scale information
+        const scaleLabel = document.createElement("span");
+        scaleLabel.textContent = `Scale: ${coord.recommendedscale}%`;
+        scaleLabel.style.fontSize = "12px";
+        scaleLabel.style.display = "block";
+        scaleLabel.style.textAlign = "center";
+
         div.appendChild(img);
+        div.appendChild(scaleLabel);
         dom.coordinatesContainer.appendChild(div);
     });
 
@@ -643,6 +672,7 @@ const populateCoordinates = () => {
 };
 
 const updatePreview = () => {
+    console.log("Updating preview");
     if (!dom.preview) {
         console.error("preview not found in DOM");
         return;
@@ -673,37 +703,39 @@ const updatePreview = () => {
     `;
     dom.preview.appendChild(bgDiv);
 
-    // Use appState.currentPattern.layers instead of cachedLayerPaths
-    if (appState.currentPattern && appState.currentPattern.layers) {
-        appState.currentPattern.layers.forEach((layerUrl, index) => {
-            const layerColor = getColorHex(appState.layerInputs[index + 1]?.input?.value || "Snowbound");
-            console.log(`Layer ${index + 1} URL: ${layerUrl}, Color: ${layerColor}`);
-            processImage(layerUrl, (processedUrl) => {
-                const div = document.createElement("div");
-                div.style.cssText = `
-                    background-color: ${layerColor};
-                    width: 100%;
-                    height: 100%;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    z-index: ${index + 1};
-                    mask-image: url(${processedUrl});
-                    -webkit-mask-image: url(${processedUrl});
-                    mask-size: contain;
-                    -webkit-mask-size: contain;
-                    mask-position: center;
-                    -webkit-mask-position: center;
-                    display: block !important;
-                    opacity: 1;
-                `;
-                dom.preview.appendChild(div);
-            });
+    console.log("Current layers for preview:", currentLayers);
+    if (currentLayers && currentLayers.length > 1) {
+        currentLayers.slice(1).forEach((layer, index) => {
+            const layerInput = appState.layerInputs[index + 1]?.input;
+            const layerColor = getColorHex(layerInput ? layerInput.value : "#000000");
+            console.log(`Layer ${index + 1} URL: ${layer.imageUrl}, Color: ${layerColor}, Label: ${layer.label}`);
+            const div = document.createElement("div");
+            div.style.cssText = `
+                background-color: ${layerColor};
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: ${index + 1};
+                mask-image: url(${layer.imageUrl});
+                -webkit-mask-image: url(${layer.imageUrl});
+                mask-size: contain;
+                -webkit-mask-size: contain;
+                mask-position: center;
+                -webkit-mask-position: center;
+                display: block !important;
+                opacity: 1;
+            `;
+            dom.preview.appendChild(div);
         });
+    } else {
+        console.warn("No overlay layers to render in preview");
     }
 };
 
 const updateRoomMockup = () => {
+    console.log("Updating room mockup");
     if (!dom.roomMockup) {
         console.error("roomMockup element not found in DOM");
         return;
@@ -717,7 +749,7 @@ const updateRoomMockup = () => {
     console.log("Updating room mockup with bgColor from input:", bgInput.value, "converted to:", bgColor);
 
     dom.roomMockup.classList.remove("aspect-square");
-    dom.roomMockup.classList.add("w-[600px]", "max-w-[600px]", "pb-[75.33%]", "h-0", "overflow-hidden", "relative", "z-0", "flex-shrink-0");
+    dom.roomMockup.classList.add("w-[600px]", "max-w-[600px]", "pb-[75.33%]", "UNIh-0", "overflow-hidden", "relative", "z-0", "flex-shrink-0");
     dom.roomMockup.innerHTML = "";
 
     const canvas = document.createElement("canvas");
@@ -745,19 +777,20 @@ const updateRoomMockup = () => {
 
     renderCanvas();
 
-    const isHalfDrop = appState.selectedPattern.tilingType === "half-drop";
-    console.log(`updateRoomMockup: Tiling type: ${appState.selectedPattern.tilingType}`);
+    console.log("Current layers for room mockup:", currentLayers);
+    if (currentLayers && currentLayers.length > 1) {
+        const isHalfDrop = appState.currentPattern.tilingType === "half-drop";
+        console.log(`updateRoomMockup: Tiling type: ${appState.currentPattern.tilingType}`);
 
-    // Use appState.currentPattern.layers instead of cachedLayerPaths
-    const layersPromises = appState.currentPattern.layers.map((layerUrl, index) => {
-        const layerColor = getColorHex(appState.layerInputs[index + 1]?.input?.value || "Snowbound");
-        return new Promise((resolve) => {
-            processImage(layerUrl, (processedUrl) => {
+        const layersPromises = currentLayers.slice(1).map((layer, index) => {
+            const layerInput = appState.layerInputs[index + 1]?.input;
+            const layerColor = getColorHex(layerInput ? layerInput.value : "#000000");
+            return new Promise((resolve) => {
                 const img = new Image();
                 img.crossOrigin = "Anonymous";
-                img.src = processedUrl;
+                img.src = layer.imageUrl;
                 img.onload = () => {
-                    console.log(`Layer ${index + 1} mask loaded:`, processedUrl);
+                    console.log(`Layer ${index + 1} mask loaded: ${layer.imageUrl}`);
                     const tempCanvas = document.createElement("canvas");
                     tempCanvas.width = canvas.width;
                     tempCanvas.height = canvas.height;
@@ -788,35 +821,35 @@ const updateRoomMockup = () => {
                     resolve();
                 };
                 img.onerror = () => {
-                    console.error(`Failed to load mask image for layer ${index + 1}:`, processedUrl);
+                    console.error(`Failed to load mask image for layer ${index + 1}: ${layer.imageUrl}`);
                     resolve();
                 };
-            }, layerColor);
+            });
         });
-    });
 
-    Promise.all(layersPromises)
-        .then(() => {
-            console.log("All layers processed, rendering with layers");
-            renderCanvas();
-
-            const overlay = new Image();
-            overlay.src = "./mockups/English-Countryside-Bedroom-1.png";
-            overlay.onload = () => {
-                console.log("Room overlay loaded");
-                ctx.globalCompositeOperation = "source-over";
-                ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+        Promise.all(layersPromises)
+            .then(() => {
+                console.log("All layers processed, rendering with layers");
                 renderCanvas();
-            };
-            overlay.onerror = () => {
-                console.error("Failed to load room overlay image: ./mockups/English-Countryside-Bedroom-1.png");
-            };
-        })
-        .catch(error => {
-            console.error("Error processing layers in updateRoomMockup:", error);
-        });
+                const overlay = new Image();
+                overlay.src = "./mockups/English-Countryside-Bedroom-1.png";
+                overlay.onload = () => {
+                    console.log("Room overlay loaded");
+                    ctx.globalCompositeOperation = "source-over";
+                    ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+                    renderCanvas();
+                };
+                overlay.onerror = () => {
+                    console.error("Failed to load room overlay image");
+                };
+            })
+            .catch(error => {
+                console.error("Error processing layers in updateRoomMockup:", error);
+            });
+    } else {
+        console.warn("No overlay layers to render in room mockup");
+    }
 };
-
 
 // ... (Rest of your existing code unchanged) ...
 
@@ -905,6 +938,7 @@ const updateDisplays = () => {
     });
     updatePreview();
     updateRoomMockup();
+    populateCoordinates(appState.currentPattern?.coordinates || []);
 };
 
 const initialize = async () => {
@@ -924,42 +958,50 @@ const initialize = async () => {
         appState.colorsData = ["Iron Ore", "Snowbound"];
         try {
             colorData = await loadJSON("./colors.json");
+            console.log("Successfully loaded colors.json:", colorData);
         } catch (error) {
             console.error("Failed to load colors.json:", error);
-            colorData = []; // Default to empty array on failure
+            colorData = [
+                { color_name: "Iron Ore", hex: "434341" },
+                { color_name: "Snowbound", hex: "d9d9d6" }
+            ];
+            console.log("Using fallback colors:", colorData);
         }
-        console.log("Loaded colors.json:", colorData);
+        if (!Array.isArray(colorData)) {
+            console.warn("colorData is not an array, using fallback");
+            colorData = [
+                { color_name: "Iron Ore", hex: "434341" },
+                { color_name: "Snowbound", hex: "d9d9d6" }
+            ];
+            console.log("Fallback colors applied:", colorData);
+        }
 
         let collectionsData = [];
 
         if (USE_LOCAL_DATA) {
             const response = await fetch('./data/local-collections.json?cachebust=' + new Date().getTime());
             if (!response.ok) {
-                throw new Error('Failed to fetch ./data/local-collections.json');
+                console.error('Failed to fetch ./data/local-collections.json:', response.statusText);
+                return null;
             }
             const localData = await response.json();
             collectionsData = localData.collections.map(c => ({
-                name: c.name.split(' - ')[1],
-                patterns: c.records.map(r => {
-                    const layersCount = (r.layerSeparations || []).length;
-                    const layerLabels = r.layerLabels && r.layerLabels.length > 0 ? r.layerLabels : Array.from({ length: layersCount }, (_, i) => `Layer ${i + 1}`);
-                    const pattern = {
-                        id: r.id,
-                        rawName: r.name,
-                        name: r.name,
-                        number: "",
-                        collection: c.name.split(' - ')[1],
-                        layers: r.layerSeparations || [],
-                        layerLabels: layerLabels,
-                        curatedColors: [],
-                        thumbnail: r.thumbnail || "",
-                        coordinatePrints: r.coordinatePrints || [],
-                        tilingType: "regular"
-                    };
-                    console.log(`Pattern ${r.name} thumbnail: ${pattern.thumbnail}, layers: ${pattern.layers.length}, labels: ${pattern.layerLabels}`);
-                    return pattern;
-                }),
-                curatedColors: []
+                name: c.name,
+                curatedColors: c.curatedColors || [],
+                patterns: c.patterns.map(r => ({
+                    id: r.id,
+                    rawName: r.name,
+                    name: r.name,
+                    number: "",
+                    collection: c.name,
+                    layers: r.layers || [],
+                    layerLabels: r.layerLabels || [],
+                    curatedColors: r.curatedColors || [],
+                    designerColors: r.designerColors || [],
+                    thumbnail: r.thumbnail || "",
+                    coordinates: r.coordinates || [],
+                    tilingType: r.repeat === "yes" ? "regular" : "no-repeat"
+                }))
             }));
             console.log("Loaded local collections:", collectionsData);
         } else {
@@ -1028,7 +1070,8 @@ const initialize = async () => {
             }
             console.log("Loaded Airtable collections:", collectionsData);
         }
-        appState.collectionsData = collectionsData;
+
+appState.collectionsData = collectionsData;
         console.log("Collections loaded:", appState.collectionsData);
         console.log("Updated colorsData:", appState.colorsData);
         appState.currentPattern = appState.collectionsData[0].patterns[0];
@@ -1039,7 +1082,7 @@ const initialize = async () => {
 
         appState.currentPattern = appState.collectionsData[0].patterns[0];
         appState.curatedColors = appState.collectionsData[0].curatedColors;
-        console.log("Initial pattern set:", appState.currentPattern?.name, "coordinates:", appState.currentPattern?.coordinatePrints);
+        console.log("Initial pattern set:", appState.currentPattern?.name, "coordinates:", appState.currentPattern?.coordinates);
         populateCoordinates();
 
         if (!appState.layerInputs[0]) {
@@ -1081,9 +1124,10 @@ const initialize = async () => {
         return collectionsData;
     } catch (error) {
         console.error("Error in initialize:", error);
-        throw error;
+        return null; // Graceful exit
     }
 };
+
 
 const startApp = (collectionsData, collectionName = "FARMHOUSE", patternName = null) => {
     try {
@@ -1107,7 +1151,7 @@ const startApp = (collectionsData, collectionName = "FARMHOUSE", patternName = n
             handlePatternSelection(patternName);
         } else {
             console.warn(`Pattern "${patternName || 'none specified'}" not found, using first available pattern`);
-            const firstPatternName = collection.patterns[0]?.name || "LANCASTER TOLE";
+            const firstPatternName = collection.patterns[0]?.name || "FARM TOILE";
             handlePatternSelection(firstPatternName);
         }
     } catch (error) {
