@@ -1,9 +1,11 @@
 // Toggle flag to switch between local JSON and Airtable
 const USE_LOCAL_DATA = true; // Set to true for ./data/local-collections.json, false for Airtable
 
+const collectionName = "FARMHOUSE"
 
 async function loadLocalCollectionData(collectionName) {
     try {
+      console.log("Fetching local-collections.json...");
       const response = await fetch('./data/local-collections.json');
       const data = await response.json();
       const collection = data.collections.find(c => c.name === collectionName);
@@ -248,34 +250,37 @@ async function saveLocalData() {
 
 const getColorHex = (colorName) => {
     console.log("getColorHex called with:", colorName);
-    if (!colorName) {
-        console.warn("No color name provided, returning default #FF0000");
-        return "#FF0000";
-    }
-    let cleanedColorName = colorName.toString().toLowerCase().trim();
+    if (!colorName) return "#000000";
+
+    const cleanedColorName = colorName.toLowerCase().trim();
     console.log("Cleaned color name (initial):", cleanedColorName);
-    // Strip SW/HGSW number prefix if present
-    cleanedColorName = cleanedColorName.replace(/^(sw|hgsw)\d+\s*/i, "").trim();
-    console.log("Cleaned color name (after stripping prefix):", cleanedColorName);
-    if (/^#[0-9A-F]{6}$/i.test(cleanedColorName)) {
+
+    const strippedPrefix = cleanedColorName.replace(/^sw\d+\s*/i, "");
+    console.log("Cleaned color name (after stripping prefix):", strippedPrefix);
+
+    if (/^#[0-9A-Fa-f]{6}$/.test(cleanedColorName)) {
         console.log("Valid hex color, returning:", cleanedColorName);
         return cleanedColorName;
     }
-    if (!colorData || !Array.isArray(colorData)) {
+
+    if (!appState.colorsData || !Array.isArray(appState.colorsData)) {
         console.warn("colorData is not loaded or invalid, returning default #FF0000");
         return "#FF0000";
     }
-    const colorEntry = colorData.find(c => c && c.color_name && c.color_name.toLowerCase() === cleanedColorName);
+
+    const colorEntry = appState.colorsData.find(c => c.name.toLowerCase() === strippedPrefix);
     if (colorEntry && colorEntry.hex) {
-        console.log("Found color hex:", `#${colorEntry.hex}`);
-        return `#${colorEntry.hex}`;
+        console.log("Found color hex:", colorEntry.hex);
+        return colorEntry.hex;
     }
-    console.warn(`Color "${cleanedColorName}" not found in colorData, returning default #FF0000`);
-    return "#FF0000";
+
+    console.warn("Color not found, returning default #000000");
+    return "#000000";
 };
 
+
 const fallbackCuratedColors = [
-    "SW 7069 Iron Ore",
+    "SW7069 Iron Ore",
     "SW7067 Cityscape",
     "SW3441 Foothills",
     "SW6135 Ecru",
@@ -287,58 +292,79 @@ const fallbackCuratedColors = [
 ];
 
 // UI Creation
-const createColorInput = (labelText, id, initialColor, isBackground = false) => {
+// const createColorInput = (labelText, id, initialColor, isBackground = false) => {
+//     const container = document.createElement("div");
+//     container.className = "layer-input-container";
+//     const label = document.createElement("div");
+//     label.className = "layer-label";
+//     label.textContent = labelText || "Unknown Layer";
+//     console.log(`Creating color input with label: ${labelText}, ID: ${id}`);
+//     const circle = document.createElement("div");
+//     circle.className = "circle-input";
+//     circle.id = `${id}Circle`;
+//     const input = document.createElement("input");
+//     input.type = "text";
+//     input.className = "layer-input";
+//     input.id = id;
+//     input.placeholder = `Enter ${labelText ? labelText.toLowerCase() : 'layer'} color`;
+//     // Strip SW/HGSW number prefix
+//     const cleanInitialColor = (initialColor || "Snowbound").replace(/^(SW|HGSW)\d+\s*/i, "").trim();
+//     input.value = toInitialCaps(cleanInitialColor);
+//     circle.style.backgroundColor = getColorHex(initialColor || "Snowbound"); // Use full name for hex
+//     container.append(label, circle, input);
+//     if (dom.layerInputsContainer) {
+//         dom.layerInputsContainer.appendChild(container);
+//     } else {
+//         console.error("layerInputsContainer not found in DOM");
+//     }
+
+//     const layerData = { input, circle, isBackground };
+//     if (!appState.layerInputs.some(li => li.input.id === id)) {
+//         appState.layerInputs.push(layerData);
+//     }
+
+//     circle.addEventListener("click", () => {
+//         appState.lastSelectedLayer = layerData;
+//         highlightActiveLayer(circle);
+//         if (localStorage.getItem("hidePopup") !== "true") {
+//             showPopupMessage("🎨 Now, click a curated color to set this color, OR enter an SW name.", "hidePopup");
+//         }
+//     });
+
+//     const updateColor = () => {
+//         const formatted = toInitialCaps(input.value.trim());
+//         input.value = formatted;
+//         const hex = getColorHex(formatted) || getColorHex("Snowbound");
+//         circle.style.backgroundColor = hex;
+//         updateDisplays();
+//     };
+
+//     input.addEventListener("blur", updateColor);
+//     input.addEventListener("keydown", (e) => e.key === "Enter" && updateColor());
+
+//     return layerData;
+// };
+const createColorInput = (label, id, initialColor) => {
+    console.log("Creating color input with label:", label, "ID:", id);
     const container = document.createElement("div");
-    container.className = "layer-input-container";
-    const label = document.createElement("div");
-    label.className = "layer-label";
-    label.textContent = labelText || "Unknown Layer";
-    console.log(`Creating color input with label: ${labelText}, ID: ${id}`);
-    const circle = document.createElement("div");
-    circle.className = "circle-input";
-    circle.id = `${id}Circle`;
+    container.className = "color-input-container";
+
+    const labelEl = document.createElement("label");
+    labelEl.textContent = label;
+    labelEl.htmlFor = id;
+
     const input = document.createElement("input");
-    input.type = "text";
-    input.className = "layer-input";
+    input.type = "color";
     input.id = id;
-    input.placeholder = `Enter ${labelText ? labelText.toLowerCase() : 'layer'} color`;
-    // Strip SW/HGSW number prefix
-    const cleanInitialColor = (initialColor || "Snowbound").replace(/^(SW|HGSW)\d+\s*/i, "").trim();
-    input.value = toInitialCaps(cleanInitialColor);
-    circle.style.backgroundColor = getColorHex(initialColor || "Snowbound"); // Use full name for hex
-    container.append(label, circle, input);
-    if (dom.layerInputsContainer) {
-        dom.layerInputsContainer.appendChild(container);
-    } else {
-        console.error("layerInputsContainer not found in DOM");
-    }
+    input.value = getColorHex(initialColor);
 
-    const layerData = { input, circle, isBackground };
-    if (!appState.layerInputs.some(li => li.input.id === id)) {
-        appState.layerInputs.push(layerData);
-    }
+    container.appendChild(labelEl);
+    container.appendChild(input);
+    dom.layerInputsContainer.appendChild(container);
 
-    circle.addEventListener("click", () => {
-        appState.lastSelectedLayer = layerData;
-        highlightActiveLayer(circle);
-        if (localStorage.getItem("hidePopup") !== "true") {
-            showPopupMessage("🎨 Now, click a curated color to set this color, OR enter an SW name.", "hidePopup");
-        }
-    });
-
-    const updateColor = () => {
-        const formatted = toInitialCaps(input.value.trim());
-        input.value = formatted;
-        const hex = getColorHex(formatted) || getColorHex("Snowbound");
-        circle.style.backgroundColor = hex;
-        updateDisplays();
-    };
-
-    input.addEventListener("blur", updateColor);
-    input.addEventListener("keydown", (e) => e.key === "Enter" && updateColor());
-
-    return layerData;
+    return input;
 };
+
 
 const highlightActiveLayer = (circle) => {
     document.querySelectorAll(".circle-input").forEach((c) => (c.style.outline = "none"));
@@ -430,15 +456,50 @@ const loadThumbnails = (patterns) => {
     });
 };
 
+// Add selectPattern before startApp
+const selectPattern = (patternName) => {
+    console.log("Attempting to select pattern:", patternName);
+    const pattern = appState.collections
+        .flatMap(c => c.patterns)
+        .find(p => p.name === patternName);
+    if (pattern) {
+        console.log("Selected pattern:", pattern);
+        appState.currentPattern = pattern;
+        // Add populateLayerInputs and updateDisplays when defined
+        // populateLayerInputs(pattern);
+        // updateDisplays();
+    } else {
+        console.warn(`Pattern "${patternName}" not found`);
+    }
+};
+
 const handleCollectionSelection = (collection) => {
-    console.log("Handling collection selection:", collection.name);
-    if (!collection || !collection.patterns) {
-        console.error("Invalid collection or missing patterns:", collection);
+    console.log("Handling collection selection:", collection);
+    if (!collection) {
+        console.warn("No collection provided, skipping");
         return;
     }
-    dom.collectionHeader.textContent = `${collection.name} Collection`;
-    loadThumbnails(collection.patterns);
+    const collectionPatterns = appState.collections
+        .flatMap(c => c.patterns.map(p => ({ ...p, collection: c.name })))
+        .filter(p => p.collection === collection);
+    console.log("Loading thumbnails for patterns:", collectionPatterns);
+
+    if (collectionPatterns.length === 0) {
+        console.warn("Invalid collection or missing patterns:", collection);
+        return;
+    }
+
+    dom.collectionThumbnails.innerHTML = "";
+    collectionPatterns.forEach(pattern => {
+        const img = document.createElement("img");
+        img.src = pattern.thumbnail;
+        img.alt = pattern.name;
+        img.className = "thumbnail";
+        img.addEventListener("click", () => selectPattern(pattern.name));
+        dom.collectionThumbnails.appendChild(img);
+    });
 };
+
 
 
 const handlePatternSelection = (patternName) => {
@@ -941,222 +1002,123 @@ const updateDisplays = () => {
     populateCoordinates(appState.currentPattern?.coordinates || []);
 };
 
+const dom = {
+    patternName: "patternName",
+    collectionHeader: "collectionHeader",
+    collectionThumbnails: "collectionThumbnails",
+    layerInputsContainer: "layerInputsContainer",
+    curatedColorsContainer: "curatedColorsContainer",
+    designerColorsContainer: "designerColorsContainer",
+    preview: "preview",
+    roomMockup: "roomMockup",
+    coordinatesContainer: "coordinatesContainer"
+};
+
+const appState = {
+    collections: [],
+    colorsData: [],
+    currentPattern: null,
+    curatedColors: [],
+    layerInputs: []
+};
+
 const initialize = async () => {
     try {
-        console.log("Initializing local/session storage...");
-        ["hidePopup", "hideSelectionWarning"].forEach((key) => {
-            console.log(`Checking ${key}:`, localStorage.getItem(key));
-            localStorage.setItem(key, "false");
-            console.log(`Set ${key} to:`, localStorage.getItem(key));
-        });
-        if (sessionStorage.getItem("appLaunched") !== "true") {
-            localStorage.removeItem("hidePopup");
-            localStorage.removeItem("hideSelectionWarning");
-            sessionStorage.setItem("appLaunched", "true");
+        console.log("Fetching colors.json...");
+        const colorsResponse = await fetch("./data/colors.json");
+        if (!colorsResponse.ok) {
+            throw new Error(`Failed to fetch colors.json: ${colorsResponse.status}`);
         }
-
-        appState.colorsData = ["Iron Ore", "Snowbound"];
-        try {
-            colorData = await loadJSON("./colors.json");
-            console.log("Successfully loaded colors.json:", colorData);
-        } catch (error) {
-            console.error("Failed to load colors.json:", error);
-            colorData = [
-                { color_name: "Iron Ore", hex: "434341" },
-                { color_name: "Snowbound", hex: "d9d9d6" }
-            ];
-            console.log("Using fallback colors:", colorData);
+        const colorsData = await colorsResponse.json();
+        console.log("Successfully loaded colors.json:", colorsData);
+        if (!Array.isArray(colorsData)) {
+            throw new Error("colors.json is not an array");
         }
-        if (!Array.isArray(colorData)) {
-            console.warn("colorData is not an array, using fallback");
-            colorData = [
-                { color_name: "Iron Ore", hex: "434341" },
-                { color_name: "Snowbound", hex: "d9d9d6" }
-            ];
-            console.log("Fallback colors applied:", colorData);
+        appState.colorsData = colorsData;
+        console.log("colorsData set:", appState.colorsData.length);
+
+        console.log("Fetching local-collections.json...");
+        const collectionsResponse = await fetch("./data/local-collections.json");
+        if (!collectionsResponse.ok) {
+            throw new Error(`HTTP error! Status: ${collectionsResponse.status}`);
         }
+        const data = await collectionsResponse.json();
+        const collectionsData = data.collections;
+        console.log("Collections loaded:", collectionsData);
 
-        let collectionsData = [];
-
-        if (USE_LOCAL_DATA) {
-            const response = await fetch('./data/local-collections.json?cachebust=' + new Date().getTime());
-            if (!response.ok) {
-                console.error('Failed to fetch ./data/local-collections.json:', response.statusText);
-                return null;
-            }
-            const localData = await response.json();
-            collectionsData = localData.collections.map(c => ({
-                name: c.name,
-                curatedColors: c.curatedColors || [],
-                patterns: c.patterns.map(r => ({
-                    id: r.id,
-                    rawName: r.name,
-                    name: r.name,
-                    number: "",
-                    collection: c.name,
-                    layers: r.layers || [],
-                    layerLabels: r.layerLabels || [],
-                    curatedColors: r.curatedColors || [],
-                    designerColors: r.designerColors || [],
-                    thumbnail: r.thumbnail || "",
-                    coordinates: r.coordinates || [],
-                    tilingType: r.repeat === "yes" ? "regular" : "no-repeat"
-                }))
-            }));
-            console.log("Loaded local collections:", collectionsData);
-        } else {
-
-            // ... (Airtable logic unchanged) ...
-            const collectionTables = [
-                { name: "5 - FARMHOUSE", curatedField: "CURATED COLORS" },
-                { name: "8 - BOMBAY", curatedField: "CURATED COLORS" },
-            ];
-            for (const { name: tableName, curatedField } of collectionTables) {
-                const collectionRecords = await loadAirtableData(tableName, {
-                    filterByFormula: "RIGHT({NUMBER}, 3) = '000'",
-                    view: "SAFFRON COTTAGE PRODUCTS",
-                });
-                console.log(`Collection records for ${tableName}:`, collectionRecords);
-
-                const patternRecords = await loadAirtableData(tableName, {
-                    filterByFormula: "AND({TRADE SHOW} = 1, RIGHT({NUMBER}, 3) != '100')",
-                    view: "SAFFRON COTTAGE PRODUCTS",
-                });
-                console.log(`Pattern records for ${tableName}:`, patternRecords);
-
-                const curatedColorsRaw = collectionRecords[0]?.fields?.["CURATED COLORS"] || "";
-                const curatedColors = curatedColorsRaw
-                    ? curatedColorsRaw.split(',').map(c => c.trim())
-                    : [];
-                const strippedColors = curatedColors.map(c => c.replace(/^(SW|HGSW)\d+\s*/i, ""));
-                appState.colorsData = [...new Set([...appState.colorsData, ...strippedColors])];
-
-                const patternsForCollection = patternRecords.map(record => {
-                    const recordFields = record.fields || {};
-                    console.log(`Raw record fields for ${record.id}:`, recordFields);
-                    const rawName = recordFields.Name || recordFields.NAME || recordFields.name || "Unknown Pattern";
-                    const derivedName = rawName
-                        .replace(/^\d+[A-Z]*\d*\s*-\s*/, '')
-                        .replace(/\s*-\s*(MULTIPLE COLORS VERSION \d+|LAYER SEPARATIONS|DESIGN|PATTERN|COLOR SEPARATIONS|.*24X24.*)$/i, '')
-                        .trim();
-                    const layerLabelsRaw = recordFields["LAYER LABELS"] || "";
-                    const layerLabels = layerLabelsRaw.split(',').map(l => l.trim());
-                    const tilingStyle = recordFields["TILING TYPE"] || "";
-                    console.log(`Pattern ${derivedName}: Raw TILING STYLE = "${tilingStyle}"`);
-                    const tilingType = tilingStyle.toLowerCase() === "half-drop" ? "half-drop" : "regular";
-                    console.log(`Pattern ${derivedName}: TILING TYPE = ${tilingType}`);
-                    return {
-                        id: record.id,
-                        rawName: rawName,
-                        name: derivedName,
-                        number: recordFields.NUMBER || "",
-                        collection: recordFields.COLLECTION || "",
-                        layers: recordFields['LAYER SEPARATIONS'] ? recordFields['LAYER SEPARATIONS'].map(attachment => attachment.url) : [],
-                        layerLabels: layerLabels,
-                        curatedColors: curatedColors,
-                        thumbnail: recordFields.THUMBNAIL && recordFields.THUMBNAIL.length > 0 ? recordFields.THUMBNAIL[0].url : "",
-                        coordinatePrints: recordFields["COORDINATES"] || [],
-                        tilingType: tilingType
-                    };
-                });
-
-                collectionsData.push({
-                    name: tableName.replace(/^\d+ - /, ""),
-                    patterns: patternsForCollection,
-                    curatedColors: curatedColors,
-                });
-
-                patterns.push(...patternsForCollection);
-            }
-            console.log("Loaded Airtable collections:", collectionsData);
-        }
-
-appState.collectionsData = collectionsData;
-        console.log("Collections loaded:", appState.collectionsData);
+        appState.collections = collectionsData;
         console.log("Updated colorsData:", appState.colorsData);
-        appState.currentPattern = appState.collectionsData[0].patterns[0];
-        console.log("Initial current pattern:", appState.currentPattern);
-
-        appState.cachedLayerPaths = appState.currentPattern.layers.map(url => ({ url }));
-        console.log("Updated cachedLayerPaths:", appState.cachedLayerPaths);
-
-        appState.currentPattern = appState.collectionsData[0].patterns[0];
-        appState.curatedColors = appState.collectionsData[0].curatedColors;
-        console.log("Initial pattern set:", appState.currentPattern?.name, "coordinates:", appState.currentPattern?.coordinates);
-        populateCoordinates();
-
-        if (!appState.layerInputs[0]) {
-            createColorInput("Background", "backgroundColorInput", "Iron Ore");
-            appState.layerInputs[0] = { input: document.getElementById("backgroundColorInput") };
-        }
-
-        appState.layerInputs.forEach((layerInput, index) => {
-            if (layerInput?.input) {
-                layerInput.input.addEventListener("input", () => {
-                    console.log(`Layer ${index} input changed to: ${layerInput.input.value}`);
-                    if (index > 0 && appState.currentPattern.layers[index - 1]) {
-                        appState.cachedLayerPaths[index - 1] = { url: appState.currentPattern.layers[index - 1] };
-                    }
-                    updateRoomMockup();
-                    updatePreview();
-                    populateCoordinates();
-                });
-            }
-        });
-
-        const displaySize = document.createElement('div');
-        document.body.appendChild(displaySize);
-        displaySize.style.position = 'fixed';
-        displaySize.style.top = '10px';
-        displaySize.style.left = '10px';
-        displaySize.style.background = 'rgba(0,0,0,0.7)';
-        displaySize.style.color = 'white';
-        displaySize.style.padding = '5px';
-        displaySize.style.borderRadius = '5px';
-
-        function updateSize() {
-            displaySize.textContent = `Viewport: ${window.innerWidth} x ${window.innerHeight}`;
-        }
-
-        window.addEventListener('resize', updateSize);
-        updateSize();
 
         return collectionsData;
     } catch (error) {
         console.error("Error in initialize:", error);
-        return null; // Graceful exit
+        return null;
     }
 };
 
+const startApp = async (collectionName = "FARMHOUSE", patternName = "first available") => {
+    console.log("Starting app with collection:", collectionName, "pattern:", patternName);
+    const collectionsData = appState.collections || [];
+    const collectionPatterns = collectionsData
+        .flatMap(c => c.patterns.map(p => ({ ...p, collection: c.name })))
+        .filter(p => p.collection === collectionName.toLowerCase());
+    console.log("Available patterns:", collectionPatterns);
 
-const startApp = (collectionsData, collectionName = "FARMHOUSE", patternName = null) => {
-    try {
-        console.log(`Starting app with collection: ${collectionName}, pattern: ${patternName || 'first available'}`);
-        if (!collectionsData) {
-            console.error("collectionsData is undefined in startApp");
-            return;
-        }
-        const collection = collectionsData.find((c) => c.name.toLowerCase() === collectionName.toLowerCase());
-        if (!collection) {
-            console.error(`Collection "${collectionName}" not found.`);
-            return;
-        }
-        appState.selectedCollection = collection;
-        console.log("Available patterns:", collection.patterns.map(p => ({ name: p.name, thumbnail: p.thumbnail })));
-        handleCollectionSelection(collection);
-
-        const normalizedPatternName = patternName ? patternName.toUpperCase() : null;
-        const validPattern = normalizedPatternName ? collection.patterns.find(p => p.name.toUpperCase() === normalizedPatternName) : null;
-        if (validPattern) {
-            handlePatternSelection(patternName);
-        } else {
-            console.warn(`Pattern "${patternName || 'none specified'}" not found, using first available pattern`);
-            const firstPatternName = collection.patterns[0]?.name || "FARM TOILE";
-            handlePatternSelection(firstPatternName);
-        }
-    } catch (error) {
-        console.error("Error in startApp:", error);
+    if (collectionPatterns.length === 0) {
+        console.error(`No patterns found for collection: ${collectionName}`);
+        return;
     }
+
+    const lowerCaseCollection = collectionName.toLowerCase();
+    console.log("Passing to handleCollectionSelection:", lowerCaseCollection);
+    handleCollectionSelection(lowerCaseCollection); // Ensure this line is correct
+
+    const patternToSelect = patternName === "first available" ? 
+        collectionPatterns[0].name : 
+        patternName;
+    const selectedPattern = collectionPatterns.find(p => p.name === patternToSelect);
+
+    if (selectedPattern) {
+        selectPattern(selectedPattern.name);
+    } else {
+        console.warn(`Pattern "${patternToSelect}" not found, using first available pattern`);
+        selectPattern(collectionPatterns[0].name);
+    }
+
+    if (!appState.layerInputs[0]) {
+        createColorInput("Background", "backgroundColorInput", "Iron Ore");
+        appState.layerInputs[0] = { input: document.getElementById("backgroundColorInput") };
+    }
+
+    appState.layerInputs.forEach((layerInput, index) => {
+        if (layerInput?.input) {
+            layerInput.input.addEventListener("input", () => {
+                console.log(`Layer ${index} input changed to: ${layerInput.input.value}`);
+                // updateRoomMockup();
+                // updatePreview();
+                // populateCoordinates();
+            });
+        }
+    });
+
+    // populateCoordinates();
+
+    const displaySize = document.createElement('div');
+    document.body.appendChild(displaySize);
+    displaySize.style.position = 'fixed';
+    displaySize.style.top = '10px';
+    displaySize.style.left = '10px';
+    displaySize.style.background = 'rgba(0,0,0,0.7)';
+    displaySize.style.color = 'white';
+    displaySize.style.padding = '5px';
+    displaySize.style.borderRadius = '5px';
+
+    function updateSize() {
+        displaySize.textContent = `Viewport: ${window.innerWidth} x ${window.innerHeight}`;
+    }
+
+    window.addEventListener('resize', updateSize);
+    updateSize();
 };
 
 
@@ -1332,75 +1294,88 @@ const generatePrintPreview = () => {
     });
 };
 
+            
+            document.addEventListener("DOMContentLoaded", async () => {
+                console.log("DOM content loaded, initializing...");
+                const domCheck = Object.keys(dom).reduce((acc, key) => {
+                    acc[key] = !!document.getElementById(key);
+                    return acc;
+                }, {});
+                console.log("Initial DOM check:", domCheck);
 
+                await initialize();
+                await startApp("FARMHOUSE");
+            });
 
 // DOMContentLoaded 
-document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        console.log("DOM content loaded, initializing...");
-        window.resizeTo(1850, 1240);
-        window.moveTo(0, 0);
+//     document.addEventListener("DOMContentLoaded", async () => {
+//     try {
+//         console.log("DOM content loaded, initializing...");
+//         window.resizeTo(1850, 1240);
+//         window.moveTo(0, 0);
 
-        dom = {
-            patternName: document.getElementById("patternName"),
-            collectionHeader: document.getElementById("collectionHeader"),
-            collectionThumbnails: document.getElementById("collectionThumbnails"),
-            layerInputsContainer: document.getElementById("layerInputsContainer"),
-            curatedColorsContainer: document.getElementById("curatedColorsContainer"),
-            preview: document.getElementById("preview"),
-            roomMockup: document.getElementById("roomMockup"),
-            coordinatesContainer: document.getElementById("coordinatesContainer"),
-            printButton: document.getElementById("printButton")
-        };
-        console.log("Initial DOM check:", {
-            patternName: !!dom.patternName,
-            collectionHeader: !!dom.collectionHeader,
-            collectionThumbnails: !!dom.collectionThumbnails,
-            layerInputsContainer: !!dom.layerInputsContainer,
-            curatedColorsContainer: !!dom.curatedColorsContainer,
-            preview: !!dom.preview,
-            roomMockup: !!dom.roomMockup,
-            coordinatesContainer: !!dom.coordinatesContainer,
-            printButton: !!dom.printButton
-        });
+//         dom = {
+//             patternName: document.getElementById("patternName"),
+//             collectionHeader: document.getElementById("collectionHeader"),
+//             collectionThumbnails: document.getElementById("collectionThumbnails"),
+//             layerInputsContainer: document.getElementById("layerInputsContainer"),
+//             curatedColorsContainer: document.getElementById("curatedColorsContainer"),
+//             preview: document.getElementById("preview"),
+//             roomMockup: document.getElementById("roomMockup"),
+//             coordinatesContainer: document.getElementById("coordinatesContainer"),
+//             printButton: document.getElementById("printButton")
+//         };
+//         console.log("Initial DOM check:", {
+//             patternName: !!dom.patternName,
+//             collectionHeader: !!dom.collectionHeader,
+//             collectionThumbnails: !!dom.collectionThumbnails,
+//             layerInputsContainer: !!dom.layerInputsContainer,
+//             curatedColorsContainer: !!dom.curatedColorsContainer,
+//             preview: !!dom.preview,
+//             roomMockup: !!dom.roomMockup,
+//             coordinatesContainer: !!dom.coordinatesContainer,
+//             printButton: !!dom.printButton
+//         });
 
-        // Get collection name from URL parameter 'name'
-        const urlParams = new URLSearchParams(window.location.search);
-        const selectedCollectionName = urlParams.get('name')?.toLowerCase() || 'FARMHOUSE';
+//         // Get collection name from URL parameter 'name'
+//         const urlParams = new URLSearchParams(window.location.search);
+//         const selectedCollectionName = urlParams.get('name')?.toLowerCase() || 'FARMHOUSE';
 
-        const collectionsData = await initialize();
-        if (!collectionsData) {
-            console.error("initialize returned undefined");
-            return;
-        }
+//         const collectionsData = await initialize();
+//         if (!collectionsData) {
+//             console.error("initialize returned undefined");
+//             return;
+//         }
 
-        // Start the app with the URL parameter
-        startApp(collectionsData, selectedCollectionName);
+//         // Start the app with the URL parameter
+//         // startApp(collectionsData, selectedCollectionName);
+//         await startApp("FARMHOUSE"); // Explicitly start with FARMHOUSE
 
-        // Add thumbnail click handler (assuming thumbnails are populated elsewhere)
-        document.querySelectorAll(".thumbnail").forEach(thumb => {
-            thumb.addEventListener("click", () => {
-                const patternId = thumb.dataset.patternId;
-                console.log("Thumbnail clicked, pattern ID:", patternId);
-                const pattern = appState.selectedCollection.patterns.find(p => p.id === patternId);
-                if (pattern) {
-                    const derivedPatternName = pattern.name;
-                    console.log("Selected pattern name:", derivedPatternName);
-                    handlePatternSelection(derivedPatternName);
-                } else {
-                    console.error("Pattern not found for ID:", patternId);
-                }
-            });
-        });
 
-        // Add print button handler
-        dom.printButton.addEventListener("click", () => {
-            console.log("Print button clicked");
-            generatePrintPreview();
-        });
+//         // Add thumbnail click handler (assuming thumbnails are populated elsewhere)
+//         document.querySelectorAll(".thumbnail").forEach(thumb => {
+//             thumb.addEventListener("click", () => {
+//                 const patternId = thumb.dataset.patternId;
+//                 console.log("Thumbnail clicked, pattern ID:", patternId);
+//                 const pattern = appState.selectedCollection.patterns.find(p => p.id === patternId);
+//                 if (pattern) {
+//                     const derivedPatternName = pattern.name;
+//                     console.log("Selected pattern name:", derivedPatternName);
+//                     handlePatternSelection(derivedPatternName);
+//                 } else {
+//                     console.error("Pattern not found for ID:", patternId);
+//                 }
+//             });
+//         });
 
-    } catch (error) {
-        console.error("Error in DOMContentLoaded handler:", error);
-    }
-});
+//         // Add print button handler
+//         dom.printButton.addEventListener("click", () => {
+//             console.log("Print button clicked");
+//             generatePrintPreview();
+//         });
+
+//     } catch (error) {
+//         console.error("Error in DOMContentLoaded handler:", error);
+//     }
+// });
 
