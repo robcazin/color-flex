@@ -455,6 +455,51 @@ const loadThumbnails = (patterns) => {
         thumbnailsContainer.appendChild(thumbDiv);
     });
 };
+// INPUTS create inputs for pattern based on layer separation count
+const populateLayerInputs = (curatedColors) => {
+    const totalLayerCount = appState.cachedLayerPaths.length + 1;
+    console.log(`Populating inputs for ${totalLayerCount} layers`);
+    console.log("Cached layer paths for inputs:", appState.cachedLayerPaths); // Debug
+    dom.layerInputsContainer.innerHTML = "";
+    appState.layerInputs = [];
+    createColorInput("Background", "bgColorInput", curatedColors[0], true); // Background input
+
+    // Populate layer inputs with derived names
+    // appState.cachedLayerPaths.forEach((layer, index) => {
+    //     const label = layer.name || `Layer ${index + 1}`; // Use derived name
+    //     console.log(`Creating input for layer ${index + 1} with label: ${label}`); // Debug
+    //     const colorIndex = index + 1; // Offset for curatedColors
+    //     const initialColor = curatedColors[colorIndex] || "#000000"; // Fallback color
+    //     createColorInput(label, `layer${index + 1}ColorInput`, initialColor);
+    // });
+    appState.cachedLayerPaths.forEach((layer, index) => {
+        const label = layer.name || `Layer ${index + 1}`;
+        console.log(`Creating input for layer ${index + 1} with label: ${label}`);
+        const colorIndex = index + 1;
+        const fullColor = appState.collectionsData[0].curatedColors[colorIndex] || "#000000"; // "SW7069 Iron Ore"
+        const initialColor = fullColor.startsWith("#") ? fullColor : fullColor.replace(/^(SW|HGSW)\d+\s*/i, ""); // "Iron Ore"
+        createColorInput(label, `layer${index + 1}ColorInput`, initialColor);
+    });
+
+    console.log("Layer inputs:", appState.layerInputs.map(input => ({
+        id: input.input.id,
+        label: input.input.previousSibling.textContent,
+        value: input.input.value
+    })));
+};
+const updateDisplays = () => {
+    console.log("Updating displays...");
+    console.log("DOM elements:", {
+        preview: !!dom.preview,
+        roomMockup: !!dom.roomMockup,
+        coordinatesContainer: !!dom.coordinatesContainer,
+        layerInputsContainer: !!dom.layerInputsContainer,
+        curatedColorsContainer: !!dom.curatedColorsContainer
+    });
+    updatePreview();
+    updateRoomMockup();
+    populateCoordinates(appState.currentPattern?.coordinates || []);
+};
 
 // Add selectPattern before startApp
 const selectPattern = (patternName) => {
@@ -465,9 +510,8 @@ const selectPattern = (patternName) => {
     if (pattern) {
         console.log("Selected pattern:", pattern);
         appState.currentPattern = pattern;
-        // Add populateLayerInputs and updateDisplays when defined
-        // populateLayerInputs(pattern);
-        // updateDisplays();
+        populateLayerInputs(pattern);
+        updateDisplays();
     } else {
         console.warn(`Pattern "${patternName}" not found`);
     }
@@ -625,38 +669,6 @@ const populateCuratedColors = (colors) => {
     console.log("Finished populating curated colors, total:", colors.length);
 };
 
-// INPUTS create inputs for pattern based on layer separation count
-const populateLayerInputs = (curatedColors) => {
-    const totalLayerCount = appState.cachedLayerPaths.length + 1;
-    console.log(`Populating inputs for ${totalLayerCount} layers`);
-    console.log("Cached layer paths for inputs:", appState.cachedLayerPaths); // Debug
-    dom.layerInputsContainer.innerHTML = "";
-    appState.layerInputs = [];
-    createColorInput("Background", "bgColorInput", curatedColors[0], true); // Background input
-
-    // Populate layer inputs with derived names
-    // appState.cachedLayerPaths.forEach((layer, index) => {
-    //     const label = layer.name || `Layer ${index + 1}`; // Use derived name
-    //     console.log(`Creating input for layer ${index + 1} with label: ${label}`); // Debug
-    //     const colorIndex = index + 1; // Offset for curatedColors
-    //     const initialColor = curatedColors[colorIndex] || "#000000"; // Fallback color
-    //     createColorInput(label, `layer${index + 1}ColorInput`, initialColor);
-    // });
-    appState.cachedLayerPaths.forEach((layer, index) => {
-        const label = layer.name || `Layer ${index + 1}`;
-        console.log(`Creating input for layer ${index + 1} with label: ${label}`);
-        const colorIndex = index + 1;
-        const fullColor = appState.collectionsData[0].curatedColors[colorIndex] || "#000000"; // "SW7069 Iron Ore"
-        const initialColor = fullColor.startsWith("#") ? fullColor : fullColor.replace(/^(SW|HGSW)\d+\s*/i, ""); // "Iron Ore"
-        createColorInput(label, `layer${index + 1}ColorInput`, initialColor);
-    });
-
-    console.log("Layer inputs:", appState.layerInputs.map(input => ({
-        id: input.input.id,
-        label: input.input.previousSibling.textContent,
-        value: input.input.value
-    })));
-};
 
 const populateCoordinates = () => {
     if (!dom.coordinatesContainer) {
@@ -988,19 +1000,7 @@ const processImage = (url, callback, layerColor = '#7f817e', gamma = 2.2) => {
     img.onerror = () => console.error(`Canvas image load failed: ${url}`);
 };
 
-const updateDisplays = () => {
-    console.log("Updating displays...");
-    console.log("DOM elements:", {
-        preview: !!dom.preview,
-        roomMockup: !!dom.roomMockup,
-        coordinatesContainer: !!dom.coordinatesContainer,
-        layerInputsContainer: !!dom.layerInputsContainer,
-        curatedColorsContainer: !!dom.curatedColorsContainer
-    });
-    updatePreview();
-    updateRoomMockup();
-    populateCoordinates(appState.currentPattern?.coordinates || []);
-};
+
 
 const dom = {
     patternName: "patternName",
