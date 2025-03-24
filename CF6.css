@@ -437,9 +437,9 @@ img {
 }
 
 #collectionThumbnails img {
-  width: 150px;
-  height: 150px;
-  margin-bottom: 10px;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 5px;
   object-fit: cover;
   border-radius: 4px;
   border: 1px solid #444;
@@ -449,7 +449,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
+  padding: 1px;
 }
 
 /* ✅ Ensures curated colors are centered below logo */
@@ -464,6 +464,35 @@ img {
     margin-bottom: -1rem; /* Pulls it closer to the main content */
     padding-bottom: 0; /* Ensures no extra space */
 }
+#curatedColorsContainer button {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: white;
+  background-color: inherit;
+  text-align: center;
+  line-height: 1.5;
+}
+.thumbnail img, .coordinate-item img {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+}
+.color-input-container input {
+  width: 2rem;
+  height: 2rem;
+  color: inherit !important; /* Let input show its value */
+}
+.color-input-container .w-8 {
+  width: 2rem;
+  height: 2rem;
+}
+#curatedColorsContainer, #header, #layerInputsContainer, #coordinatesContainer, #preview {
+  background-color: transparent !important;
+}
+
+
 
 /* Color Prompt */
 #colorPrompt {
@@ -760,7 +789,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: .5rem;
 }
 
 /* Tailwind Suggestion */
@@ -1158,4 +1187,32 @@ aside a:hover {
 /* Collection Thumbnails */
 #collectionThumbnails {
     @apply flex flex-col gap-4 mt-4;
+}
+
+
+
+#curatedColorsContainer button {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: white !important;
+  background-color: inherit !important;
+  text-align: center;
+}
+.thumbnail img, .coordinate-item img {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+}
+.color-input-container input {
+  display: none;
+}
+.color-input-container .w-8 {
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
+#curatedColorsContainer, #header, #layerInputsContainer, #coordinatesContainer, #preview, #roomMockup {
+  background-color: transparent !important;
 }
