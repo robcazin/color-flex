@@ -437,9 +437,9 @@ img {
 }
 
 #collectionThumbnails img {
-  width: 150px;
-  height: 150px;
-  margin-bottom: 10px;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 5px;
   object-fit: cover;
   border-radius: 4px;
   border: 1px solid #444;
@@ -449,7 +449,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
+  padding: 1px;
 }
 
 /* ✅ Ensures curated colors are centered below logo */
@@ -464,6 +464,36 @@ img {
     margin-bottom: -1rem; /* Pulls it closer to the main content */
     padding-bottom: 0; /* Ensures no extra space */
 }
+#curatedColorsContainer button {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: white;
+  background-color: inherit;
+  text-align: center;
+  line-height: 1.5;
+}
+.thumbnail img, .coordinate-item img {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+}
+.color-input-container input {
+  width: 2rem;
+  height: 2rem;
+  color: inherit !important; /* Let input show its value */
+}
+.color-input-container .w-8 {
+  width: 2rem;
+  height: 2rem;
+}
+
+#curatedColorsContainer, #header, #layerInputsContainer, #coordinatesContainer, #preview, #roomMockup {
+  background-color: transparent !important;
+}
+
+
 
 /* Color Prompt */
 #colorPrompt {
@@ -543,15 +573,22 @@ img {
   display: grid;
   /* grid-template-columns: minmax(700px, 1fr) minmax(240px, 1fr) minmax(600px, 1fr); */
   grid-template-columns: minmax(700px, 1fr auto) minmax(240px, 1fr) minmax(600px, 1fr);
+  grid-template-rows: auto  auto; /* Example: top, middle (mockup), bottom */
   justify-content: center;
-  align-items: flex-start;
+  /* align-items: flex-start; */
+  align-items: center;
   /* max-width: 1400px; */
   padding: 0rem 1rem 1rem;
   margin-left: 10px;  
+  margin: 0 auto;
   z-index: 1;
   gap: 40px;
   grid-column: 2;
 }
+/* #mainContent.grid-update {
+  grid-template-rows: minmax(900px, auto) minmax(300px, auto); 
+} */
+
 
 
 /* Container for preview and room mockup */
@@ -568,39 +605,54 @@ img {
 #preview {
   /* width: 565px !important; */
   width: 700px !important;
-  height: 630px !important;
-  max-height: 630px;
+  height: 700px !important;
+  max-height: 700px;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+  position: relative;
   overflow: hidden;
   flex: 0 0 auto;
+  flex-shrink: 0;
   aspect-ratio: unset !important;
   z-index: 0;
 }
 
 /* Room Mockup */
 #roomMockup {
-  width: 600px !important;
+  width: 600px; /* Fixed width as per your design */
   max-width: 600px !important;
-  padding-bottom: 75.33% !important;
-  height: 0 !important;
-  min-width: 0 !important;
-  flex: 0 0 auto !important;
+  max-height: 600px; /* Maximum allowed height */
   overflow: hidden !important;
-  display: block;
-  aspect-ratio: unset !important;
-  z-index: 0;
+  position: relative;
+  flex-shrink: 0;
   margin-left: auto;
-  margin-top: 60px;
+  /* margin-top: -200px; */
+  margin-top: auto;
+  flex: 0 0 auto; /* Prevent flex shrinkage */
+  display: block;
 }
 
+/* Remove the .grid-update override since we'll handle this dynamically */
 #roomMockup img,
 #roomMockup .blend-layer {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  position: absolute;
+  margin-top: -1px;
+  top: 0;
+  left: 0;
 }
+
+.col-start-3 {
+  grid-column-start: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px; /* Space between roomMockup and coordinatesSection */
+}
+
 
 /* Color controls */
 #colorControls {
@@ -662,9 +714,9 @@ img {
   padding: 1rem 0;
   text-align: center;
   width: 100%;
-  margin-left: 50px;
+  margin-left: 10px;
   margin-right: auto;
-  margin-top: -280px; /* Adjusted to pull up closer */
+  /* margin-top: -280px;  Adjusted to pull up closer */
 }
 
 #coordinatesContainer {
@@ -760,7 +812,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: .5rem;
 }
 
 /* Tailwind Suggestion */
@@ -1087,50 +1139,7 @@ aside a:hover {
     @apply w-24 h-24 rounded-full overflow-hidden relative flex items-center justify-center;
 }
 
-/* Color Prompt */
-/* #colorPrompt {
-    @apply text-center py-6 mb-10; /* Increased padding */
-/* } */ 
 
-/* #colorPrompt h3 {
-    @apply  font-bold;
-} */
-
-/* Container for preview and room mockup */
-#previewMockupContainer {
-    @apply contents w-full;
-}
-
-/* Preview */
-#preview {
-    @apply w-[565px] h-[630px] overflow-hidden relative z-0 flex-shrink-0;
-}
-
-/* Room Mockup */
-#roomMockup {
-    /* @apply w-[600px] max-w-[600px] pb-[75.33%] h-0 overflow-hidden relative z-0 flex-shrink-0 ml-20; */
-}
-
-#roomMockup img,
-#roomMockup .blend-layer {
-    /* @apply w-full h-full object-cover; */
-}
-
-
-/* Pattern Preview Wrapper */
-#patternPreviewWrapper {
-    @apply flex-grow-0 flex-shrink-0 max-w-[700px] w-full;
-}
-
-/* Pattern Preview */
-#patternPreview {
-    @apply max-w-[700px] w-full flex-shrink-0 text-center;
-}
-
-#patternPreview h2,
-#patternName {
-    @apply mt-2 text-base text-[#f0e6d2] text-center break-words;
-}
 
 /* Coordinates Section */
 #coordinatesSection {
@@ -1158,4 +1167,29 @@ aside a:hover {
 /* Collection Thumbnails */
 #collectionThumbnails {
     @apply flex flex-col gap-4 mt-4;
+}
+
+
+
+#curatedColorsContainer button {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: white !important;
+  background-color: inherit !important;
+  text-align: center;
+}
+.thumbnail img, .coordinate-item img {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+}
+.color-input-container input {
+  display: none;
+}
+.color-input-container .w-8 {
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
 }

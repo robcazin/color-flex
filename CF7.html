@@ -1,4 +1,4 @@
-<!-- ColorFlex 7 CF7.html V1 -->
+<!-- ColorFlex 6 CF6.html V1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,18 +8,19 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Wallpaper Customizer</title>
-    <link href="CF4.css" rel="stylesheet">
+    <link href="CF7.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Island+Moments&family=Special+Elite&display=swap" rel="stylesheet">
-    <script src="./js/airtable.browser.min.js"></script>
+    <!-- <script src="./js/airtable.browser.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
 </head>
 <body class="bg-gray-900 text-white">
     <!-- Main Header -->
     <header id="mainHeader" class="relative flex justify-between items-center px-8 py-4 pb-8 w-full bg-[#f1eee7]">
-        <img src="./img/logo-flower-pot.png" alt="Potted Plant" class="flower-pot h-32">
+        <a href="./CF7-collections.html"><img src="./img/logo-flower-pot.png" alt="Potted Plant" class="flower-pot h-32"></a>
         <img src="./img/SC-header-mage.jpg" alt="Saffron Cottage" class="h-28">
         <div class="camelionImage">
             <img src="./img/camelion.png" alt="Featuring Custom Color" class="h-28">
@@ -48,8 +49,8 @@
                 <div id="patternPreviewWrapper" class="flex-grow-0 flex-shrink-0 max-w-[700px] w-full">
                     <div id="patternPreview" class="max-w-[700px] w-full flex-shrink-0 text-center">
                         <h2 class="text-lg font-semibold">Pattern Preview</h2>
-                        <div id="preview" class="w-[700px] h-[630px] overflow-hidden relative z-0 flex-shrink-0 bg-[#434341]"></div>
-                        <h2 id="patternName" class="mt-2 text-base text-[#f0e6d2] text-center break-words">FARM TOILE</h2>
+                        <div id="preview" class="w-[700px] h-[700px] overflow-hidden relative z-0 flex-shrink-0 bg-[#434341]"></div>
+                        <h2 id="patternName" class="mt-2 text-base text-[#f0e6d2] text-center break-words">Farm Toile</h2>
                         <button id="printButton" class="mb-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
@@ -65,11 +66,13 @@
                 <h2 class="text-lg text-center mb-2">Background & Layers</h2>
                 <div id="layerInputsContainer" class="grid"></div>
             </div>
-            <div id="roomMockup" class="w-[600px] max-w-[600px] pb-[75.33%] h-0 overflow-hidden relative z-0 flex-shrink-0 ml-20"></div>
-            <section id="coordinatesSection" class="col-start-3 flex flex-col items-center p-4 text-center w-full mt-[-200px]">
-                <h3>Matching Coordinates</h3>
-                <div id="coordinatesContainer" class="flex justify-center items-center relative w-full min-h-[300px] overflow-visible max-w-[600px]"></div>
-            </section>
+            <div class="col-start-3 flex flex-col items-center">
+                <div id="roomMockup" class="w-[600px] max-w-[600px] h-[450px] overflow-hidden relative flex-shrink-0"></div>
+                <section id="coordinatesSection" class="flex flex-col items-center p-4 text-center w-full">
+                    <h3>Matching Coordinates</h3>
+                    <div id="coordinatesContainer" class="flex justify-center items-center relative w-full min-h-[300px] overflow-visible max-w-[600px]"></div>
+                                </section>
+            </div>
         </main>
     </div>
 
@@ -83,6 +86,5 @@
             <button id="popupOkButton">OK</button>
         </div>
     </div>
-    <script src="to be determined.js"></script>
-</body>
+    <script src="CF7.js?t=${new Date().getTime()}"></script></body>
 </html>
