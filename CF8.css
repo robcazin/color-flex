@@ -1,0 +1,1195 @@
+/* General Styling */
+/* Main grid layout for preview, controls, and mockup */
+.grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 20px;
+  align-items: center;
+}
+
+body, p {
+  font-family: "IM Fell English", serif;
+}
+
+
+h4, h2 {
+  font-family: "Special Elite", serif;
+  font-weight: 400;
+}
+
+h3 {
+  font-family: "Island Moments", serif !important;
+  font-weight: 400 !important;
+  font-size: 3rem !important;
+  font-style: normal;
+}
+
+h2 {
+  font-size: 1.7rem !important;
+  color: rgb(243, 230, 212);
+}
+
+h4 {
+  font-size: 1.5rem !important;
+  color: rgb(238, 205, 159);
+}  
+
+h5 {
+  font-family: "Island Moments", serif !important;
+  font-weight: 400 !important;
+  font-size: 4rem !important;
+  font-style: normal;
+}
+
+/* Circles */
+.circle {
+    width: 40px;
+    height: 40px;
+    /* border-radius: 50%; */
+    /* border: 2px solid #FFFFFF; */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.circle:hover {
+    transform: scale(1.1);
+    /* border-color: #FFD700; */
+}
+
+.circle-input {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  /* border: 2px solid #888; */
+  margin-bottom: 5px;
+}
+
+select {
+  text-align: center; /* Center-align the text */
+  text-align-last: center; /* Ensure the selected text is centered */
+  appearance: none; /* Removes default browser styling */
+  padding: 10px; /* Optional: adjust padding for visual balance */
+  font-size: 16px; /* Adjust font size as needed */
+  border: 1px solid #ddd; /* Optional border */
+  background-color: #2A2A2A; /* Match app's background */
+  color: #FFFFFF; /* Text color */
+  border-radius: 8px; /* Optional rounded corners */
+}
+
+/* Input Styles */
+.text-input {
+  color: white; /* Ensure text is readable */
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+  width: 100%;
+  background-color: var(--input-bg-color, #7E778E); /* Fallback color */
+}
+
+/* COLOR CONTROLS */
+#layerInputsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  /* Two columns of inputs */
+  gap: 14px;
+  width: 100%;
+  padding: 10px;
+  margin-top: -20px;
+}
+
+
+.layer-input {
+  width: 130px;
+  max-width: 180px; 
+  width: 100%;
+  text-align: center;
+  padding: 0px;
+  border-radius: 4px;
+  background-color: #2A2A2A;
+  color: #FFFFFF;
+  border: 1px solid #555;
+  font-size: 0.9rem; /* Larger text */
+}
+
+/* Add label styling */
+.layer-label {
+  width: 120%;
+  font-family: "Special Elite", serif;
+  color: #f0e6d2;
+  background-color: #434341;
+  margin-bottom: 6px;
+  margin-top: 6px;
+  padding-top: 4px;
+  text-align: center;
+  font-size: .8rem;
+}
+.layer-label {
+  text-align: center;
+  /* padding-right: 0.5rem; */
+  max-width: 100%; /* Match grid column width */
+  white-space: nowrap; /* Prevent wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis for long text */
+}
+
+
+/* Adjust container alignment */
+/* .layer-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+} */
+
+
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.container {
+  width: 100vw;
+  max-width: none !important;
+  padding: 0 !important;
+} 
+
+.full-room-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: center; /* Center both vertically */
+}
+
+
+/* COMBINATIONS */
+#savedCombinationsSection {
+  position: absolute; /* Pin to the top right of the page */
+  top: 22%; /* Adjust to position below the header */
+  right: 5%; /* Keep some space from the edge */
+  width: 150px; /* Fixed width to ensure consistency */
+}
+
+#saveCombination {
+  display: block; /* Make it stack with the header */
+  margin-top: -24px; /* Add space below the title */
+  background-color: #346e41;
+  color: rgb(255, 248, 248);
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#saveCombination:hover {
+  background-color: #299f66;
+}
+
+#combinationsContainer {
+  margin-top: 20px; /* Add space below the SAVE button */
+  display: flex;
+  flex-direction: column; /* Stack combination cards vertically */
+  gap: 10px; /* Add space between the cards */
+}
+
+/* Combination Card Styling */
+.combination {
+  display: flex;
+  flex-direction: column; /* Stack text and buttons */
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #897756;
+  border-radius: 5px;
+  background-color: #2A2A2A; /* Dark background */
+  font-size: 12px;
+  text-align: center;
+}
+
+
+#combinationsContainer .combination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  background-color: #2A2A2A; /* Dark background */
+  padding: 4px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(123, 100, 100, 0.5);
+  font-size: 12px;
+}
+
+#combinationsContainer .combination .layer-info span {
+  display: block;
+  margin: -4px 0;
+}
+
+#combinationsContainer .combination .layer-info strong {
+  color: hsla(271, 100%, 50%, 0.753); /* Gold for labels (BG, L1, etc.) */
+}
+
+#combinationsContainer .combination .layer-info .value {
+  color: rgb(174, 161, 161); /* White for color names */
+}
+
+#combinationsContainer .combination .button-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+#combinationsContainer .combination button {
+  width: 28px; /* Small square buttons */
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.combination-box {
+  padding: 10px;
+  border: 1px solid #555;
+  background-color: #333;
+  border-radius: 8px;
+}
+
+
+/* Layer Info Styling */
+.layer-info span {
+  display: block;
+  margin: 2px 0;
+}
+
+.layer-info strong {
+  color: rgba(230, 194, 0, 0.712); /* Gold for BG, L1, etc. */
+  font-weight: bold;
+}
+
+.layer-info .value {
+  color: rgb(178, 178, 178); /* White for color names */
+}
+
+/* Button Container Styling */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 5px; /* Space between buttons */
+  margin-top: 5px; /* Add space above buttons */
+}
+
+.button-container button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* VIEW Button */
+.view-combination {
+  background-color: #9b47b5;
+  color: white;
+}
+
+.view-combination:hover {
+  background-color: #44a2fa;
+}
+
+/* DELETE Button */
+.delete-combination {
+  background-color: #813141!important;
+  font-size: 1.5rem !important;
+  color: white !important;
+}
+
+.delete-combination:hover {
+  background-color: #dc2367 !important;
+  font-size: 1.5rem !important;
+}
+
+/* PALETTE */
+.color-palette {
+  position: fixed;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px;
+  background: #222;
+  /* border: 1px solid #fff; */
+  /* border-radius: 8px; */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.color-option {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s, border 0.2s;
+}
+
+.color-option:hover {
+  transform: scale(1.2);
+  border-color: #fff;
+}
+
+/* ----------------------NEW-------------------- */
+
+/* Main grid layout aligning with client design */
+
+
+/* #collectionThumbnails img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #444;
+} */
+
+.layer-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ✅ Adjusted Header Grid */
+#mainHeader {
+  background-color: #f1eee7 !important;  /* Ensures it isn't overridden */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* Balanced layout */
+  align-items: center;
+  gap: 0px;
+}
+
+/* Image Containers */
+#mainHeader > div {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Center Column Stacking */
+#mainHeader > div:nth-child(2) {
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.logo-img {
+  width: 40rem;
+  margin: 0 auto;
+}
+
+/* Header */
+#header {
+  text-align: center;
+  padding: 1rem 0;
+  grid-column: 1 / -1;
+  margin-bottom: -20px;
+}
+
+.flower-pot {
+  margin-left: 25px;
+  margin-bottom: -10px;
+  width: 100px;
+}
+
+/* Camelion Image Positioning Fix */
+
+  #mainHeader .camelionImage {
+    position: absolute;
+    bottom: -80px; /* Exact pixel value */
+    left: calc(60% + 360px); /* Adjust 220px to move right/left */
+    z-index: 20;
+}
+
+img {
+  max-height: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.grid {
+  width: 100%;
+}
+
+#collectionThumbnails img {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 5px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #444;
+}
+
+#collectionThumbnails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1px;
+}
+
+/* ✅ Ensures curated colors are centered below logo */
+#curatedColorsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 80%;
+  margin: 0 auto;
+  margin-top: -20px;
+    margin-bottom: 1rem; /* Pulls it closer to the main content */
+    padding-bottom: 0; /* Ensures no extra space */
+}
+#curatedColorsContainer button {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: white;
+  background-color: inherit;
+  text-align: center;
+  line-height: 1.5;
+}
+.thumbnail img, .coordinate-item img {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+}
+.color-input-container input {
+  width: 2rem;
+  height: 2rem;
+  color: inherit !important; /* Let input show its value */
+}
+.color-input-container .w-8 {
+  width: 2rem;
+  height: 2rem;
+}
+
+#curatedColorsContainer, #header, #layerInputsContainer, #coordinatesContainer, #preview, #roomMockup {
+  background-color: transparent !important;
+}
+
+
+
+/* Color Prompt */
+#colorPrompt {
+  /* font-size: 80px; */
+  text-align: center;
+  /* padding: 1rem 0; */
+  margin-top: 10px;
+}
+
+.pattern-thumbnail {
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+  margin: 5px;
+  background-color: #ccc;
+  transition: transform 0.2s;
+}
+
+.pattern-thumbnail:hover {
+  transform: scale(1.1);
+  border-color: #FFD700;
+}
+
+/* PATTERN SCALE CONTROL */
+#scaleControl {
+  width: 100%;
+  padding: 10px;
+  background-color: #424040;
+  border-radius: 8px;
+  border: 1px solid #000000;
+  justify-content: space-between;
+
+  display: none !important;
+
+}
+
+.slider {
+  width: 70%;
+  background: #000000;
+  height: 5px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  background: #65655d;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #434341;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ------NEW -------------------------------- */
+
+/* Main Container Structure */
+#mainContainer {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  grid-template-rows: auto auto 1fr;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Main content layout */
+#mainContent {
+  display: grid;
+  /* grid-template-columns: minmax(700px, 1fr) minmax(240px, 1fr) minmax(600px, 1fr); */
+  grid-template-columns: minmax(700px, 1fr auto) minmax(240px, 1fr) minmax(600px, 1fr);
+  grid-template-rows: auto  auto; /* Example: top, middle (mockup), bottom */
+  justify-content: center;
+  /* align-items: flex-start; */
+  align-items: center;
+  /* max-width: 1400px; */
+  padding: 0rem 1rem 1rem;
+  margin-left: 10px;  
+  margin: 0 auto;
+  z-index: 1;
+  gap: 40px;
+  grid-column: 2;
+}
+/* #mainContent.grid-update {
+  grid-template-rows: minmax(900px, auto) minmax(300px, auto); 
+} */
+
+
+
+/* Container for preview and room mockup */
+#previewMockupContainer {
+  display: contents;
+  width: 100%;
+}
+#previewMockupContainer h2{
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+/* Preview */
+#preview {
+  /* width: 565px !important; */
+  width: 700px !important;
+  height: 700px !important;
+  max-height: 700px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  aspect-ratio: unset !important;
+  z-index: 0;
+}
+
+/* Room Mockup */
+#roomMockup {
+  width: 600px; /* Fixed width as per your design */
+  max-width: 600px !important;
+  max-height: 600px; /* Maximum allowed height */
+  overflow: hidden !important;
+  position: relative;
+  flex-shrink: 0;
+  margin-left: auto;
+  /* margin-top: -200px; */
+  margin-top: auto;
+  flex: 0 0 auto; /* Prevent flex shrinkage */
+  display: block;
+}
+
+/* Remove the .grid-update override since we'll handle this dynamically */
+#roomMockup img,
+#roomMockup .blend-layer {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  position: absolute;
+  margin-top: -1px;
+  top: 0;
+  left: 0;
+}
+
+.col-start-3 {
+  grid-column-start: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px; /* Space between roomMockup and coordinatesSection */
+}
+
+
+/* Color controls */
+#colorControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally */
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: .5rem;
+  max-width: 300px;
+  width: 100%;
+  z-index: 10;
+  position: relative;
+  /* margin-left: 18px; */
+}
+#colorControls h2 {
+  width: 100%; /* Match parent width */
+  text-align: center; /* Ensure text is centered */
+  margin-bottom: 0.5rem;
+  /* margin-left: 40px; */
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+
+
+/* Pattern Preview Wrapper */
+#patternPreviewWrapper {
+  flex-grow: 0;
+  flex: 0 0 auto;
+  max-width: 700px;
+  width: 100%;
+}
+
+/* Pattern Preview */
+#patternPreview {
+  max-width: 700px;
+  min-width: 0;
+  width: 100%;
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+#patternPreview h2,
+#patternName {
+  margin-top: 24px;
+  font-size: 1rem;
+  color: #f0e6d2;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+/* Coordinates Section */
+#coordinatesSection {
+  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0;
+  text-align: center;
+  width: 100%;
+  margin-left: 10px;
+  margin-right: auto;
+  /* margin-top: -280px;  Adjusted to pull up closer */
+}
+
+#coordinatesContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  overflow: visible;
+  max-width: 600px;
+  margin-top: -100px; /* Adjusted to pull up closer */
+  margin-left: -80px;
+}
+
+.positioning-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 600px;
+  /* margin: 0 auto; */
+}
+
+.coordinate-item {
+  width: 120px;
+  height: 120px;
+  /* border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center; */
+  transition: 0.3s ease-in-out;
+  position: absolute;
+  transform: translate(-50%, -50%) translate(var(--x-offset), var(--y-offset));
+}
+
+.coordinate-item:hover {
+  transform: translate(-50%, -50%) translate(var(--x-offset), var(--y-offset)) scale(1.3);
+  z-index: 10;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Left Sidebar */
+#leftSidebar {
+  position: flex;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 220px;
+  padding: 8px;
+  z-index: 10;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+  margin-top: calc(140px + 4rem);
+  margin-right: 0;
+  padding-right: 8px;
+  border-color: #4c4c4c;
+  border-width: thick;
+  /* display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem; /* gap-2 */
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  /* background: rgb(243, 230, 212); */ */
+  padding-right: 8px; /* Minimal padding to avoid overlap */
+
+}
+
+#leftSidebar h4 {
+  text-align: center;
+  color: #f1eee7 !important;
+  background-color: #3b3b3b;
+  border-color: #4c4c4c;
+  border-width: thick;
+  padding-top: 8px;
+}
+
+#leftSidebar a {
+  /* display: block; */
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+#leftSidebar a:hover {
+  background-color: #2d3748;
+}
+
+/* Collection Thumbnails */
+#collectionThumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: .5rem;
+}
+
+/* Tailwind Suggestion */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Curated Color Circles */
+.curated-color-circle {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+/* Curated Colors Text Sizing */
+.curated-color-circle div {
+  font-size: 1rem; /* Base size */
+  width: 100%; /* Ensure full width for text alignment */
+  padding: 8px; /* Add more padding */
+}
+
+.curated-color-circle span:first-child { /* SW Number */
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.curated-color-circle span:last-child { /* Color Name */
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.popup-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgb(69, 52, 47);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: none;
+  text-align: center;
+}
+
+.popup-content {
+  font-family: Arial, sans-serif;
+  background-color: rgb(243, 230, 212);
+}
+
+.popup-container label {
+  display: block;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.popup-container button {
+  padding: 8px 12px;
+  background-color: #606e74;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.popup-container button:hover {
+  background-color: #606e74;
+}
+
+.sc-logo {
+  width: 300px !important;
+  height: auto;
+  margin-bottom: 20px;
+  display: block;
+  margin: 0 auto 20px;
+}
+img {
+  max-width: 100%;
+  height: auto;
+  margin: 20px auto;
+  display: block;
+}
+
+.print-container {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#printButton svg {
+  width: 24px;
+  height: 24px;
+  stroke: #b7a451; /* Match your theme */
+}
+
+
+/* COLLECTIONS */
+
+/* .collection-card {
+  border: 2px solid #b08d49;
+  background: #1a202c;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.collection-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.collection-card img {
+  width: 100%;
+  height: 256px; 
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.collection-label {
+  background: #b08d49;
+  color: white;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 1.125rem; 
+  font-weight: bold;
+  border-radius: 4px;
+} */
+
+.font-special-elite {
+  font-family: 'Special Elite', cursive;
+}
+
+.font-island-moments {
+  font-family: 'Island Moments', cursive;
+}
+
+/* #patternsGrid, #collectionsGrid {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+} */
+
+.fixed.bottom-4.right-4 {
+  z-index: 10;
+}
+
+.fixed.bottom-4.right-4 div {
+  background-color: #b08d49;
+}
+
+.curated-area {
+  position: relative;
+  background-color: transparent; /* Ensure no background for curated colors */
+}
+
+.curated-color-container {
+  flex: 0 0 auto;
+  margin: 0 -1px; /* Adjust spacing for 100px circles, matching color-flex2.html */
+}
+
+.curated-color-circle {
+  width: 100px !important;
+  height: 100px !important;
+  flex-shrink: 0;
+  /* border: 1px solid #b08d49; Match gold border from mockup, but verify if color-flex2.html uses border-gray-300 */
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.curated-color-circle div {
+  line-height: 1.4;
+  font-size: 0.75rem; /* text-xs */
+  font-family: 'Special Elite', cursive; /* Ensure font matches color-flex2.html */
+  background-color: transparent !important; /* Prevent background interference */
+  color: inherit; /* Ensure text color inherits from contrast class */
+}
+
+.text-black {
+  color: #000000 !important; /* Ensure black text is readable */
+}
+
+.text-white {
+  color: #ffffff !important; /* Ensure white text is readable */
+}
+
+.font-special-elite {
+  font-family: 'Special Elite', cursive;
+}
+
+.font-island-moments {
+  font-family: 'Island Moments', cursive;
+}
+
+.border-yellow-600 {
+  border-color: #b08d49 !important;
+}
+
+.collection-card {
+  border: 2px solid #b08d49;
+  background: #1a202c;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.collection-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.collection-card img {
+  width: 100%;
+  height: 192px; /* Match h-48 from JS */
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.collection-label {
+  background: #f1eee7;          /* Light background (rgb(241, 238, 231)) */
+  border: 2px solid #b08d49;   /* Gold border, 2px solid */
+  border-radius: 4px;          /* Rounded rectangle */
+  color: #b08d49;              /* Gold text color */
+  padding: 0.5rem;             /* Matches py-2 (0.5rem top/bottom) */
+  text-align: center;          /* Centered text */
+  font-family: 'Special Elite', cursive; /* Use Special Elite font */
+  font-size: 1.5rem;           /* Larger size as specified (1.5rem) */
+  font-weight: normal;         /* Normal weight for Special Elite */
+  text-shadow: 1px 1px 2px #342e2e; /* Subtle dark gray shadow for depth */
+}
+
+/* #patternsGrid, #collectionsGrid {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+} */
+
+/* aside {
+  background-color: #1a202c; 
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); 
+}
+
+aside h4 {
+  color: #b08d49; 
+}
+
+aside a {
+  display: block;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+aside a:hover {
+  background-color: #2d3748; 
+}
+
+.header-area {
+  background-color: #f7f7f7; 
+} */
+
+
+/* TAILWIND *************************************************** */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Parent container (assuming flex layout) */
+#app { /* Replace with your actual parent ID/class, e.g., body if no wrapper */
+  display: flex;
+  flex-direction: row;
+  gap: 8px; /* Reduced gap between sidebar and main content */
+}
+
+/* Essential custom styles */
+.positioning-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.coordinate-box {
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s ease-in-out;
+  position: absolute;
+  transform: translate(-50%, -50%) translate(var(--x-offset), var(--x-offset));
+}
+
+.coordinate-box:hover {
+  transform: translate(-50%, -50%) translate(var(--x-offset), var(--x-offset)) scale(1.3);
+  z-index: 10;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Header */
+#header {
+    @apply text-center py-6 col-span-full; /* Increased padding */
+}
+
+/* Curated Colors Container */
+#curatedColorsContainer {
+/*    @apply flex flex-wrap justify-center gap-4 py-0;  Added spacing and flex-wrap */
+}
+
+.curated-color-container {
+    @apply flex items-center justify-center;
+}
+
+.curated-color-circle {
+    @apply w-24 h-24 rounded-full overflow-hidden relative flex items-center justify-center;
+}
+
+
+
+/* Coordinates Section */
+#coordinatesSection {
+    @apply col-start-3 flex flex-col items-center p-4 text-center w-full mt-[-120px];
+}
+
+#coordinatesContainer {
+    @apply flex justify-center items-center relative w-full min-h-[300px] overflow-visible max-w-[600px];
+}
+
+.positioning-wrapper {
+    @apply relative flex justify-center flex-wrap max-w-[600px] mx-auto;
+}
+
+.coordinate-box {
+    @apply w-[150px] h-[150px] rounded-lg flex items-center justify-center transition duration-300 ease-in-out absolute;
+    transform: translate(-50%, -50%) translate(var(--x-40), var(--x-40));
+}
+
+.coordinate-box:hover {
+    @apply scale-130 z-10 shadow-lg;
+}
+
+
+/* Collection Thumbnails */
+#collectionThumbnails {
+    @apply flex flex-col gap-4 mt-4;
+}
+
+
+
+#curatedColorsContainer button {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: white !important;
+  background-color: inherit !important;
+  text-align: center;
+}
+.thumbnail img, .coordinate-item img {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+}
+.color-input-container input {
+  display: none;
+}
+.color-input-container .w-8 {
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
