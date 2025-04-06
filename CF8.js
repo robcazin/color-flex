@@ -1,4 +1,34 @@
-// Toggle flag for normalization (set to false for binary threshold, true for normalization)
+// Create a dimensions display element
+const dimensionsDisplay = document.createElement('div');
+dimensionsDisplay.id = 'dimensions-display';
+dimensionsDisplay.style.cssText = `
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-family: monospace;
+    z-index: 1000;
+    border-radius: 3px;
+`;
+document.body.appendChild(dimensionsDisplay);
+
+// Function to update dimensions in the UI
+const updateDimensionsDisplay = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    dimensionsDisplay.textContent = `${width} x ${height}px`;
+};
+
+// Update on initial load
+updateDimensionsDisplay();
+
+// Update on resize
+window.addEventListener('resize', updateDimensionsDisplay);
+
+// Optional: Remove later by commenting out or deleting these lines// Toggle flag for normalization (set to false for binary threshold, true for normalization)
 const USE_NORMALIZATION = true; // Change to true to enable normalization
 
 // App state
@@ -12,7 +42,7 @@ const appState = {
     selectedCollection: null,
     cachedLayerPaths: [],
     lastSelectedLayer: null,
-    currentScale: 100
+    currentScale: 10
 };
 
 // DOM references
@@ -73,14 +103,16 @@ const setupPrintListener = () => {
 const toInitialCaps = (str) =>
     str
         .toLowerCase()
-        .replace(/_/g, ' ') // Replace all underscores with spaces
-        .split(/[\s-]+/)     // Split on spaces and hyphens
+        .replace(/\.\w+$/, '') // Remove file extensions like .jpg, .png, etc.
+        .replace(/-\d+x\d+$|-variant$/i, '') // Remove suffixes like -24x24, -variant
+        .replace(/_/g, ' ') // Replace underscores with spaces
+        .split(/[\s-]+/) // Split on spaces and hyphens
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
 
-const stripSWNumber = (colorName) => {
-    return colorName.replace(/SW\d+\s*/, '').trim(); // Removes "SW" followed by digits and optional space
-};
+    const stripSWNumber = (colorName) => {
+    return colorName.replace(/(SW|SC)\d+\s*/, '').trim(); // Removes "SW" followed by digits and optional space
+    };
 
 const getContrastClass = (hex) => {
     const r = parseInt(hex.slice(1, 3), 16);
@@ -181,7 +213,7 @@ function populateCuratedColors(colors) {
     colors.forEach(color => {
         const hex = lookupColor(color);
         const circle = document.createElement("div");
-        circle.className = "w-24 h-24 rounded-full cursor-pointer relative flex items-center justify-center";
+        circle.className = "w-20 h-20 rounded-full cursor-pointer relative flex items-center justify-center";
         circle.style.backgroundColor = hex;
 
         const text = document.createElement("span");
@@ -260,7 +292,7 @@ async function initializeApp() {
 
         const initialCollection = appState.selectedCollection;
 
-        if (dom.collectionHeader) dom.collectionHeader.textContent = `${toInitialCaps(appState.selectedCollection.name)} Collection`;
+        if (dom.collectionHeader) dom.collectionHeader.textContent = `${toInitialCaps(appState.selectedCollection.name)}`;
         if (appState.curatedColors.length) {
             populateCuratedColors(appState.curatedColors);
         } else {
@@ -301,12 +333,27 @@ window.addEventListener('popstate', () => {
 
 // Populate pattern thumbnails in sidebar
 function populatePatternThumbnails(patterns) {
+    console.log("populatePatternThumbnails called with patterns:", patterns);
     if (!dom.collectionThumbnails) {
         console.error("collectionThumbnails not found in DOM");
         return;
     }
+    console.log("dom.collectionThumbnails found:", dom.collectionThumbnails);
+
+    if (!Array.isArray(patterns)) {
+        console.error("Patterns is not an array:", patterns);
+        return;
+    }
+
+    // Debug: Add click listener to parent
+    dom.collectionThumbnails.addEventListener("click", (e) => {
+        console.log("Parent click on #collectionThumbnails:", e.target);
+    });
+
     dom.collectionThumbnails.innerHTML = "";
     patterns.forEach(pattern => {
+        console.log("Processing pattern:", pattern);
+
         const thumb = document.createElement("div");
         thumb.className = "thumbnail cursor-pointer border-2 border-transparent";
         thumb.dataset.patternId = pattern.name;
@@ -318,18 +365,27 @@ function populatePatternThumbnails(patterns) {
         thumb.appendChild(img);
 
         const label = document.createElement("p");
-        label.textContent = pattern.name.replace(/_/g, " ").toUpperCase();
-        label.className = "text-center mt-2";
+        const displayName = `${pattern.name}`;
+        label.textContent = toInitialCaps(displayName);
+        label.className = "text-center";
         thumb.appendChild(label);
 
         if (appState.currentPattern && appState.currentPattern.name === pattern.name) {
             thumb.style.borderColor = "rgb(244, 255, 219)";
         }
 
-        thumb.addEventListener("click", () => {
-            handleThumbnailClick(pattern.name);
-            document.querySelectorAll(".thumbnail").forEach(t => t.style.borderColor = "transparent");
-            thumb.style.borderColor = "rgb(244, 255, 219)";
+        console.log("Adding click listener to thumb:", thumb);
+        thumb.addEventListener("click", (e) => {
+            console.log(`Thumbnail clicked: ${pattern.name}, Target:`, e.target); // Debug
+            try {
+                handleThumbnailClick(pattern.name);
+                document.querySelectorAll(".thumbnail").forEach(t => {
+                    t.style.borderColor = "transparent";
+                });
+                thumb.style.borderColor = "rgb(244, 255, 219)";
+            } catch (e) {
+                console.error("Error in handleThumbnailClick:", e);
+            }
         });
 
         dom.collectionThumbnails.appendChild(thumb);
@@ -476,48 +532,6 @@ const highlightActiveLayer = (circle) => {
     circle.style.outline = "6px solid rgb(244, 255, 219)";
 };
 
-// Show popup message (kept for reference, currently disabled)
-const showPopupMessage = (message, storageKey) => {
-    console.log("Attempting to show popup:", message, "Storage check:", localStorage.getItem(storageKey));
-    if (localStorage.getItem(storageKey) === "true" || document.getElementById("popupMessage")) {
-        console.log("Popup suppressed or already exists");
-        return;
-    }
-    const popup = document.createElement("div");
-    popup.id = "popupMessage";
-    popup.className = "custom-popup";
-    Object.assign(popup.style, {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        background: "rgb(243, 230, 212)",
-        padding: "20px",
-        borderRadius: "10px",
-        boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-        zIndex: "10000",
-        textAlign: "center",
-        fontFamily: "'Special Elite', cursive",
-        color: "#333",
-    });
-    popup.innerHTML = `
-        <p style="margin-bottom: 15px; font-size: 18px">${message}</p>
-        <div style="display: flex; align-items: center; justify-content: center; margin-top: 10px">
-            <input type="checkbox" id="popupDismiss" style="margin-right: 5px">
-            <label for="popupDismiss" style="font-size: 14px">Don't show this again</label>
-        </div>
-        <button style="margin-top: 10px; padding: 10px 20px; background: rgb(123, 128, 112); color: #fff; border: none; border-radius: 5px; cursor: pointer; font-family: 'Special Elite', cursive">OK</button>
-    `;
-    popup.querySelector("button").addEventListener("click", () => {
-        if (popup.querySelector("#popupDismiss").checked) {
-            localStorage.setItem(storageKey, "true");
-            console.log("Popup dismissed forever:", storageKey);
-        }
-        document.body.removeChild(popup);
-    });
-    document.body.appendChild(popup);
-    console.log("Popup added to DOM");
-};
 
 // Process image with color tinting (toggleable normalization)
 const processImage = (url, callback, layerColor = '#7f817e', gamma = 2.2, isShadow = false) => {
@@ -643,208 +657,146 @@ function loadPatternData(patternId) {
         .catch(error => console.error(">>> Error loading JSON:", error));
 }
 
-const updatePreview = () => {
-    if (!dom.preview) {
-        console.error("preview not found in DOM");
-        return;
-    }
-    const bgInput = appState.layerInputs[0]?.input;
-    if (!bgInput) {
-        console.error("Background input not found in appState.layerInputs");
-        return;
-    }
-    const bgColor = lookupColor(bgInput.value);
-    console.log("Updating preview with bgColor from input:", bgInput.value, "converted to:", bgColor);
-
-    const progressContainer = document.createElement("div");
-    progressContainer.className = "absolute inset-0 flex items-center justify-center z-10";
-    const progressBar = document.createElement("div");
-    progressBar.className = "w-3/4 bg-blue-200 rounded-full h-4";
-    const progressFill = document.createElement("div");
-    progressFill.className = "bg-purple-600 h-4 rounded-full transition-all duration-300";
-    progressFill.style.width = "0%";
-    progressBar.appendChild(progressFill);
-    progressContainer.appendChild(progressBar);
-    dom.preview.appendChild(progressContainer);
-
-    const previewCanvas = document.createElement("canvas");
-    previewCanvas.width = 700;
-    previewCanvas.height = 700;
-    const previewCtx = previewCanvas.getContext("2d");
-
-    const roomCanvas = document.createElement("canvas");
-    roomCanvas.width = 600;
-    roomCanvas.height = 450;
-    const roomCtx = roomCanvas.getContext("2d");
-
-    const isHalfDrop = appState.currentPattern?.tilingType === "half-drop" || false;
-    console.log(`updatePreview: Tiling type: ${appState.currentPattern?.tilingType || "none"}`);
-
-    const processPreview = async () => {
-        console.log(">>> Current pattern in updatePreview:", JSON.stringify(appState.currentPattern, null, 2));
-        const isTintWhite = appState.currentPattern?.tintWhite;
-        const totalSteps = (appState.currentPattern?.baseComposite ? 1 : 0) + (appState.currentPattern?.layers?.length || 0) || 1;
-        let completedSteps = 0;
-
-        const updateProgress = () => {
-            completedSteps++;
-            const progress = Math.min(100, (completedSteps / totalSteps) * 100);
-            progressFill.style.width = `${progress}%`;
-            console.log(`Preview progress: ${completedSteps}/${totalSteps} (${progress.toFixed(2)}%)`);
-        };
-
-        previewCtx.fillStyle = bgColor;
-        previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
-        roomCtx.fillStyle = bgColor;
-        roomCtx.fillRect(0, 0, roomCanvas.width, roomCanvas.height);
-        console.log(">>> Preview and room backgrounds filled with:", bgColor);
-
-        const fitToCanvas = (img, canvasWidth, canvasHeight, applyScale = false) => {
-            const aspect = img.width / img.height;
-            const scaleFactor = applyScale ? (appState.currentScale / 100) : 1;
-            let width = applyScale ? 400 * scaleFactor : canvasWidth;
-            let height = applyScale ? 400 * scaleFactor * (img.height / img.width) : canvasWidth / aspect;
-            if (!applyScale && height > canvasHeight) {
-                height = canvasHeight;
-                width = canvasHeight * aspect;
-            } else if (applyScale && height > canvasHeight) {
-                height = canvasHeight;
-                width = height * aspect;
-            }
-            return { width, height, x: (canvasWidth - width) / 2, y: (canvasHeight - height) / 2 };
-        };
-
-        if (appState.currentPattern?.baseComposite && isTintWhite) {
-            const baseImage = new Image();
-            baseImage.src = `http://127.0.0.1:5500${appState.currentPattern.baseComposite.replace('./', '/')}`;
-            console.log(">>> Loading base composite image:", baseImage.src);
-            await new Promise((resolve) => {
-                baseImage.onload = () => {
-                    console.log(`>>> Base composite loaded: ${baseImage.naturalWidth}x${baseImage.naturalHeight}`);
-                    const previewFit = fitToCanvas(baseImage, 700, 700, false);
-                    previewCtx.drawImage(baseImage, previewFit.x, previewFit.y, previewFit.width, previewFit.height);
-                    const roomFit = fitToCanvas(baseImage, 600, 450, true);
-                    roomCtx.drawImage(baseImage, roomFit.x, roomFit.y, roomFit.width, roomFit.height);
-
-                    console.log(">>> Tinting white areas with:", bgColor);
-                    const tintCanvas = (ctx, width, height) => {
-                        const imageData = ctx.getImageData(0, 0, width, height);
-                        const data = imageData.data;
-                        for (let i = 0; i < data.length; i += 4) {
-                            const r = data[i];
-                            const g = data[i + 1];
-                            const b = data[i + 2];
-                            const a = data[i + 3];
-                            if (r > 240 && g > 240 && b > 240 && a > 0) {
-                                const hex = bgColor.replace("#", "");
-                                data[i] = parseInt(hex.substring(0, 2), 16);
-                                data[i + 1] = parseInt(hex.substring(2, 4), 16);
-                                data[i + 2] = parseInt(hex.substring(4, 6), 16);
-                            }
-                        }
-                        ctx.putImageData(imageData, 0, 0);
-                    };
-                    tintCanvas(previewCtx, previewCanvas.width, previewCanvas.height);
-                    tintCanvas(roomCtx, roomCanvas.width, roomCanvas.height);
-
-                    updateProgress();
-                    resolve();
-                };
-                baseImage.onerror = () => {
-                    console.error(">>> Failed to load base composite image:", baseImage.src);
-                    updateProgress();
-                    resolve();
-                };
-            });
-        } else if (appState.currentPattern?.layers?.length) {
-            let nonShadowInputIndex = 1;
-            for (let index = 0; index < appState.currentPattern.layers.length; index++) {
-                const layerUrl = appState.currentPattern.layers[index];
-                const label = appState.currentPattern.layerLabels?.[index] || `Layer ${index + 1}`;
-                const isShadow = label.toUpperCase().includes("ISSHADOW") || layerUrl.toUpperCase().includes("ISSHADOWS");
-                const layerColor = isShadow ? null : lookupColor(appState.layerInputs[nonShadowInputIndex]?.input?.value || "Snowbound");
-                console.log(`>>> Processing layer ${index + 1}: ${layerUrl}, Label: ${label}, IsShadow: ${isShadow}, Color: ${layerColor || "None"}, NonShadowInputIndex: ${nonShadowInputIndex}`);
-
+    // Ensure updatePreview is defined before updateDisplays uses it
+    const updatePreview = () => {
+        if (!dom.preview) {
+            console.error("preview not found in DOM");
+            return;
+        }
+        const bgInput = appState.layerInputs[0]?.input;
+        if (!bgInput) {
+            console.error("Background input not found in appState.layerInputs");
+            return;
+        }
+        const bgColor = lookupColor(bgInput.value);
+        console.log("Updating preview with bgColor from input:", bgInput.value, "converted to:", bgColor);
+    
+        const previewCanvas = document.createElement("canvas");
+        previewCanvas.width = 700;
+        previewCanvas.height = 700;
+        const previewCtx = previewCanvas.getContext("2d");
+    
+        const isHalfDrop = appState.currentPattern?.tilingType === "half-drop" || false;
+        console.log(`updatePreview: Tiling type: ${appState.currentPattern?.tilingType || "none"}`);
+    
+        const processPreview = async () => {
+            console.log(">>> Current pattern in updatePreview:", JSON.stringify(appState.currentPattern, null, 2));
+            const isTintWhite = appState.currentPattern?.tintWhite;
+    
+            previewCtx.fillStyle = bgColor;
+            previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+            console.log(">>> Preview background filled with:", bgColor);
+    
+            const fitToCanvas = (img, canvasWidth, canvasHeight, applyScale = false) => {
+                const aspect = img.width / img.height;
+                const scaleFactor = applyScale ? (appState.currentScale / 100) : 1;
+                let width = applyScale ? 400 * scaleFactor : canvasWidth;
+                let height = applyScale ? 400 * scaleFactor * (img.height / img.width) : canvasWidth / aspect;
+                if (!applyScale && height > canvasHeight) {
+                    height = canvasHeight;
+                    width = canvasHeight * aspect;
+                } else if (applyScale && height > canvasHeight) {
+                    height = canvasHeight;
+                    width = height * aspect;
+                }
+                return { width, height, x: (canvasWidth - width) / 2, y: (canvasHeight - height) / 2 };
+            };
+    
+            if (appState.currentPattern?.baseComposite && isTintWhite) {
+                const baseImage = new Image();
+                baseImage.src = appState.currentPattern.baseComposite.replace('./', './'); // Keep as relative path
+                console.log(">>> Loading base composite image:", baseImage.src);
                 await new Promise((resolve) => {
-                    processImage(layerUrl, (processedUrl) => {
-                        const img = new Image();
-                        img.src = processedUrl; // Use base64 directly, no http:// prefix
-                        img.onload = () => {
-                            console.log(`Layer ${index + 1} loaded: ${img.width}x${img.height}, Composite Mode: ${isShadow ? "multiply" : "source-over"}`);
-                            previewCtx.globalCompositeOperation = isShadow ? "multiply" : "source-over";
-                            previewCtx.globalAlpha = isShadow ? 0.3 : 1.0;
-                            const previewFit = fitToCanvas(img, 700, 700, false);
-                            previewCtx.drawImage(img, previewFit.x, previewFit.y, previewFit.width, previewFit.height);
-
-                            roomCtx.globalCompositeOperation = isShadow ? "multiply" : "source-over";
-                            roomCtx.globalAlpha = isShadow ? 0.3 : 1.0;
-                            const roomFit = fitToCanvas(img, 600, 450, true);
-                            roomCtx.drawImage(img, roomFit.x, roomFit.y, roomFit.width, roomFit.height);
-
-                            updateProgress();
-                            if (!isShadow) nonShadowInputIndex++;
-                            resolve();
+                    baseImage.onload = () => {
+                        console.log(`>>> Base composite loaded: ${baseImage.naturalWidth}x${baseImage.naturalHeight}`);
+                        const previewFit = fitToCanvas(baseImage, 700, 700, false);
+                        previewCtx.drawImage(baseImage, previewFit.x, previewFit.y, previewFit.width, previewFit.height);
+    
+                        console.log(">>> Tinting white areas with:", bgColor);
+                        const tintCanvas = (ctx, width, height) => {
+                            const imageData = ctx.getImageData(0, 0, width, height);
+                            const data = imageData.data;
+                            for (let i = 0; i < data.length; i += 4) {
+                                const r = data[i];
+                                const g = data[i + 1];
+                                const b = data[i + 2];
+                                const a = data[i + 3];
+                                if (r > 240 && g > 240 && b > 240 && a > 0) {
+                                    const hex = bgColor.replace("#", "");
+                                    data[i] = parseInt(hex.substring(0, 2), 16);
+                                    data[i + 1] = parseInt(hex.substring(2, 4), 16);
+                                    data[i + 2] = parseInt(hex.substring(4, 6), 16);
+                                }
+                            }
+                            ctx.putImageData(imageData, 0, 0);
                         };
-                        img.onerror = () => {
-                            console.error(`>>> Failed to load layer ${index + 1}: ${processedUrl}`);
-                            updateProgress();
-                            if (!isShadow) nonShadowInputIndex++;
-                            resolve();
-                        };
-                    }, layerColor, 2.2, isShadow);
+                        tintCanvas(previewCtx, previewCanvas.width, previewCanvas.height);
+                        resolve();
+                    };
+                    baseImage.onerror = () => {
+                        console.error(">>> Failed to load base composite image:", baseImage.src);
+                        resolve();
+                    };
                 });
+            } else if (appState.currentPattern?.layers?.length) {
+                let nonShadowInputIndex = 1;
+                for (let index = 0; index < appState.currentPattern.layers.length; index++) {
+                    const layerUrl = appState.currentPattern.layers[index];
+                    const label = appState.currentPattern.layerLabels?.[index] || `Layer ${index + 1}`;
+                    const isShadow = label.toUpperCase().includes("ISSHADOW") || layerUrl.toUpperCase().includes("ISSHADOWS");
+                    const layerColor = isShadow ? null : lookupColor(appState.layerInputs[nonShadowInputIndex]?.input?.value || "Snowbound");
+                    console.log(`>>> Processing layer ${index + 1}: ${layerUrl}, Label: ${label}, IsShadow: ${isShadow}, Color: ${layerColor || "None"}, NonShadowInputIndex: ${nonShadowInputIndex}`);
+    
+                    await new Promise((resolve) => {
+                        processImage(layerUrl, (processedUrl) => {
+                            const img = new Image();
+                            img.src = processedUrl;
+                            img.onload = () => {
+                                console.log(`Layer ${index + 1} loaded: ${img.width}x${img.height}, Composite Mode: ${isShadow ? "multiply" : "source-over"}`);
+                                previewCtx.globalCompositeOperation = isShadow ? "multiply" : "source-over";
+                                previewCtx.globalAlpha = isShadow ? 0.3 : 1.0;
+                                const previewFit = fitToCanvas(img, 700, 700, false);
+                                previewCtx.drawImage(img, previewFit.x, previewFit.y, previewFit.width, previewFit.height);
+                                if (!isShadow) nonShadowInputIndex++;
+                                resolve();
+                            };
+                            img.onerror = () => {
+                                console.error(`>>> Failed to load layer ${index + 1}: ${processedUrl}`);
+                                resolve();
+                            };
+                        }, layerColor, 2.2, isShadow);
+                    });
+                }
+            } else {
+                console.log(">>> No baseComposite or layers to process");
             }
-        } else {
-            console.log(">>> No baseComposite or layers to process");
-            updateProgress();
-        }
-
-        console.log(">>> Preview canvas state before append:", previewCanvas.toDataURL().substring(0, 50));
-        dom.preview.classList.remove("aspect-square");
-        dom.preview.classList.add("w-[700px]", "h-[700px]", "overflow-hidden", "relative", "z-0", "flex-shrink-0");
-        dom.preview.style.cssText = "";
-        dom.preview.innerHTML = "";
-        dom.preview.appendChild(previewCanvas);
-
-        const roomMockup = document.getElementById("roomMockup");
-        if (roomMockup) {
-            console.log("Updating roomMockup DOM");
-            roomMockup.innerHTML = "";
-            roomMockup.appendChild(roomCanvas);
-            roomMockup.classList.remove("pb-[75.33%]");
-            roomMockup.style.height = "450px";
-        }
-
-        if (appState.currentPattern?.name) {
-            dom.patternName.textContent = toInitialCaps(appState.currentPattern.name);
-            console.log("Updated #patternName to:", dom.patternName.textContent);
-        }
-
-        setTimeout(() => {
-            if (progressContainer && progressContainer.parentNode) {
-                progressContainer.parentNode.removeChild(progressContainer);
-                console.log(">>> Progress bar removed from DOM");
+    
+            console.log(">>> Preview canvas state before append:", previewCanvas.toDataURL().substring(0, 50));
+            dom.preview.classList.remove("aspect-square");
+            dom.preview.classList.add("w-[700px]", "h-[700px]", "overflow-hidden", "relative", "z-0", "flex-shrink-0");
+            dom.preview.style.cssText = "";
+            dom.preview.innerHTML = "";
+            dom.preview.appendChild(previewCanvas);
+    
+            if (appState.currentPattern?.name) {
+                dom.patternName.textContent = toInitialCaps(appState.currentPattern.name);
+                console.log("Updated #patternName to:", dom.patternName.textContent);
             }
-        }, 0);
+        };
+    
+        processPreview().catch(error => {
+            console.error("Error processing preview:", error);
+            dom.preview.innerHTML = "";
+            dom.preview.appendChild(previewCanvas);
+            if (appState.currentPattern?.name) {
+                dom.patternName.textContent = toInitialCaps(appState.currentPattern.name);
+            }
+        });
     };
 
-    processPreview().catch(error => {
-        console.error("Error processing preview:", error);
-        dom.preview.innerHTML = "";
-        dom.preview.appendChild(previewCanvas);
-        const roomMockup = document.getElementById("roomMockup");
-        if (roomMockup) {
-            roomMockup.innerHTML = "";
-            roomMockup.appendChild(roomCanvas);
-        }
-        if (appState.currentPattern?.name) {
-            dom.patternName.textContent = toInitialCaps(appState.currentPattern.name);
-        }
-    });
-};
-
+// Your working updateRoomMockup with fixes (unchanged from last version)
 const updateRoomMockup = () => {
-    console.log(">>> Entered updateRoomMockup function"); // Confirm entry
+    console.log(">>> Entered updateRoomMockup function");
 
     if (!dom.roomMockup) {
         console.error("roomMockup element not found in DOM");
@@ -870,25 +822,19 @@ const updateRoomMockup = () => {
     const renderCanvas = () => {
         console.log(">>> Entering renderCanvas");
         dom.roomMockup.className = `w-[${UI_WIDTH_DEFAULT}px] max-w-[${UI_WIDTH_DEFAULT}px] h-[${UI_HEIGHT_DEFAULT}px] relative flex-shrink-0 ml-20 grid-update`;
-        dom.roomMockup.style.height = `${UI_HEIGHT_DEFAULT}px`;
-        dom.roomMockup.style.maxHeight = `${UI_HEIGHT_DEFAULT}px`;
-        dom.roomMockup.style.border = "1px solid black !important";
-        console.log(">>> roomMockup styles:", dom.roomMockup.style.cssText);
-
-        dom.roomMockup.innerHTML = ''; // Clear previous content
+        dom.roomMockup.style.cssText = "width: 600px; height: 450px; position: relative; background: none;";
+        dom.roomMockup.innerHTML = "";
 
         try {
             const dataUrl = canvas.toDataURL("image/png");
             console.log(">>> Canvas Data URL length:", dataUrl.length);
-            console.log(">>> Canvas Data URL sample:", dataUrl.substring(0, 50)); // Debug final content
+            console.log(">>> Canvas Data URL sample:", dataUrl.substring(0, 50));
             if (dataUrl.length < 100) {
                 console.warn(">>> Canvas Data URL seems very short - Canvas might be blank!");
             }
             const img = document.createElement("img");
             img.src = dataUrl;
-            img.style.cssText = "width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0;";
-            console.log(">>> Image styles:", img.style.cssText);
-
+            img.style.cssText = "width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; display: block;";
             img.onload = () => {
                 console.log(">>> Room mockup image final load SUCCESSFUL");
                 console.log(`>>> Image natural dimensions: ${img.naturalWidth}x${img.naturalHeight}`);
@@ -943,36 +889,36 @@ const updateRoomMockup = () => {
         const mockupHeightInches = appState.selectedCollection?.mockupHeightInches || 45;
         console.log(`>>> Mockup dimensions from appState: ${mockupWidthInches}x${mockupHeightInches} inches`);
 
-        const size = appState.currentPattern?.size || [24, 24];
-        console.log(`>>> Pattern size: [${size[0]}, ${size[1]}] inches`);
-        const scale = appState.currentScale / 100;
-        const pixelsPerInchWidth = UI_WIDTH_DEFAULT / mockupWidthInches;
-        const pixelsPerInchHeight = UI_HEIGHT_DEFAULT / mockupHeightInches;
-        const tileWidth = size[0] * pixelsPerInchWidth * scale;
-        const tileHeight = size[1] * pixelsPerInchHeight * scale;
-        console.log(`>>> Tile dimensions: ${tileWidth}x${tileHeight}px (scale: ${scale}, pixelsPerInch: ${pixelsPerInchWidth.toFixed(2)}x${pixelsPerInchHeight.toFixed(2)})`);
+        const scale = appState.currentScale / 100 || 1;
+        console.log(">>> Scale:", scale);
 
         const isTintWhite = appState.currentPattern?.tintWhite;
         if (isTintWhite && (appState.currentPattern?.baseComposite || appState.currentPattern?.layers?.length)) {
             const imageSrc = appState.currentPattern?.baseComposite || appState.currentPattern?.layers[0];
+            if (!imageSrc) {
+                console.error(">>> No valid tintWhite image source");
+                renderCanvas();
+                return;
+            }
             const baseImage = new Image();
-            baseImage.src = `http://127.0.0.1:5500${imageSrc.replace('./', '/')}`;
+            baseImage.src = imageSrc.replace('./', './'); // Keep relative path
             console.log(">>> Loading tintWhite image:", baseImage.src);
             await new Promise((resolve) => {
                 baseImage.onload = () => {
                     console.log(`>>> TintWhite image loaded: ${baseImage.naturalWidth}x${baseImage.naturalHeight}`);
-                    const offsetY = isHalfDrop ? tileHeight / 2 : 0;
-                    const startY = -tileHeight;
-                    for (let x = -tileWidth; x < canvas.width + tileWidth; x += tileWidth) {
-                        const isOddColumn = Math.floor(x / tileWidth) % 2 !== 0;
+                    const layerTileWidth = baseImage.width * scale;
+                    const layerTileHeight = baseImage.height * scale;
+                    const offsetY = isHalfDrop ? layerTileHeight / 2 : 0;
+                    const startY = -layerTileHeight;
+                    for (let x = -layerTileWidth; x < canvas.width + layerTileWidth; x += layerTileWidth) {
+                        const isOddColumn = Math.floor(x / layerTileWidth) % 2 !== 0;
                         const yOffset = isOddColumn && isHalfDrop ? offsetY : 0;
-                        for (let y = startY + yOffset; y < canvas.height + tileHeight; y += tileHeight) {
-                            patternCtx.drawImage(baseImage, x, y, tileWidth, tileHeight);
-                            console.log(`>>> TintWhite tile at (${x}, ${y}), size: ${tileWidth}x${tileHeight}`);
+                        for (let y = startY + yOffset; y < canvas.height + layerTileHeight; y += layerTileHeight) {
+                            patternCtx.drawImage(baseImage, x, y, layerTileWidth, layerTileHeight);
+                            console.log(`>>> TintWhite tile at (${x}, ${y}), size: ${layerTileWidth}x${layerTileHeight}`);
                         }
                     }
-                    console.log(">>> TintWhite layer tiled with size:", tileWidth, "x", tileHeight);
-
+                    console.log(">>> TintWhite layer tiled with size:", layerTileWidth, "x", layerTileHeight);
                     console.log(">>> Tinting white areas with:", bgColor);
                     const imageData = patternCtx.getImageData(0, 0, canvas.width, canvas.height);
                     const data = imageData.data;
@@ -1000,6 +946,11 @@ const updateRoomMockup = () => {
                 };
             });
         } else if (appState.currentPattern?.layers?.length) {
+            if (!appState.currentPattern.layers.length) {
+                console.error(">>> No layers defined");
+                renderCanvas();
+                return;
+            }
             let nonShadowInputIndex = 1;
             for (let index = 0; index < appState.currentPattern.layers.length; index++) {
                 const layerUrl = appState.currentPattern.layers[index];
@@ -1010,12 +961,18 @@ const updateRoomMockup = () => {
 
                 await new Promise((resolve) => {
                     processImage(layerUrl, (processedUrl) => {
+                        if (!processedUrl) {
+                            console.error(">>> No processed URL for layer", index + 1);
+                            resolve();
+                            return;
+                        }
                         const img = new Image();
                         img.src = processedUrl;
+                        console.log(">>> Layer image src:", processedUrl);
                         img.onload = () => {
                             console.log(`>>> Layer ${index + 1} loaded: ${img.width}x${img.height}`);
-                            const layerTileWidth = tileWidth;
-                            const layerTileHeight = tileHeight * (img.height / img.width);
+                            const layerTileWidth = img.width * scale;
+                            const layerTileHeight = img.height * scale;
                             const offsetY = isHalfDrop ? layerTileHeight / 2 : 0;
                             const startY = -layerTileHeight;
                             patternCtx.globalCompositeOperation = isShadow ? "multiply" : "source-over";
@@ -1041,6 +998,7 @@ const updateRoomMockup = () => {
             }
             ctx.drawImage(patternCanvas, 0, 0);
             console.log(">>> Pattern canvas applied to main canvas for layers");
+            console.log(">>> After pattern:", canvas.toDataURL().substring(0, 50));
         } else {
             console.log(">>> No baseComposite or layers to process");
         }

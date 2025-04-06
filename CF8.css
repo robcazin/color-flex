@@ -42,6 +42,13 @@ h5 {
   font-style: normal;
 }
 
+h6 {
+    font-family: "Special Elite", serif;
+    font-weight: 400;
+    text-align: center;
+  }
+  
+
 /* Circles */
 .circle {
     width: 40px;
@@ -58,11 +65,11 @@ h5 {
 }
 
 .circle-input {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   /* border: 2px solid #888; */
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 }
 
 select {
@@ -96,7 +103,7 @@ select {
   gap: 14px;
   width: 100%;
   padding: 10px;
-  margin-top: -20px;
+  margin-top: -10px;
 }
 
 
@@ -118,7 +125,7 @@ select {
   width: 120%;
   font-family: "Special Elite", serif;
   color: #f0e6d2;
-  background-color: #434341;
+  background-color: #43434100;
   margin-bottom: 6px;
   margin-top: 6px;
   padding-top: 4px;
@@ -367,6 +374,7 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: -4px;
 }
 
 /* ✅ Adjusted Header Grid */
@@ -376,7 +384,17 @@ body, html {
   grid-template-columns: 1fr auto 1fr; /* Balanced layout */
   align-items: center;
   gap: 0px;
+  height: 100px;
 }
+#mainHeader {
+    background-color: #f1eee7 !important;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0px;
+}
+
+
 
 /* Image Containers */
 #mainHeader > div {
@@ -393,7 +411,7 @@ body, html {
 }
 
 .logo-img {
-  width: 40rem;
+  width: 30rem;
   margin: 0 auto;
 }
 
@@ -406,17 +424,18 @@ body, html {
 }
 
 .flower-pot {
-  margin-left: 25px;
-  margin-bottom: -10px;
-  width: 100px;
+  margin-left: 24px;
+  margin-top: -24px;
+  width: 74px;
+  object-fit: contain;
 }
 
 /* Camelion Image Positioning Fix */
 
   #mainHeader .camelionImage {
     position: absolute;
-    bottom: -80px; /* Exact pixel value */
-    left: calc(60% + 360px); /* Adjust 220px to move right/left */
+    bottom: -40px; /* Exact pixel value */
+    left: calc(65% + 360px); /* Adjust 220px to move right/left */
     z-index: 20;
 }
 
@@ -435,33 +454,61 @@ img {
 .grid {
   width: 100%;
 }
-
-#collectionThumbnails img {
-  width: 140px;
-  height: 140px;
-  margin-bottom: 5px;
-  object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid #444;
-}
-
-#collectionThumbnails {
+.collectionHeader {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 1px;
+  gap: 8px;
+  margin-top: -40px;
 }
+#collectionThumbnails {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    margin-top: 8px !important;
+    z-index: 21;
+    pointer-events: auto;
+}
+.thumbnail {
+    position: relative;
+    z-index: 22;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+
+.thumbnail img {
+    width: 100%;
+    height: auto;
+    max-height: 120px;
+    object-fit: contain;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block;
+}
+.thumbnail p {
+    text-align: center;
+    margin: .5rem;
+    padding: 0 !important;
+    font-size: 12px;
+}
+.thumbnail img,
+.thumbnail p {
+    pointer-events: none; /* Allow clicks to pass through to .thumbnail */
+}
+
+
 
 /* ✅ Ensures curated colors are centered below logo */
 #curatedColorsContainer {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   max-width: 80%;
   margin: 0 auto;
-  margin-top: -20px;
-    margin-bottom: 1rem; /* Pulls it closer to the main content */
+  margin-top: 8px;
+    margin-bottom: .8rem; /* Pulls it closer to the main content */
     padding-bottom: 0; /* Ensures no extra space */
 }
 #curatedColorsContainer button {
@@ -474,7 +521,7 @@ img {
   text-align: center;
   line-height: 1.5;
 }
-.thumbnail img, .coordinate-item img {
+.coordinate-item img {
   width: 6rem;
   height: 6rem;
   object-fit: cover;
@@ -578,7 +625,7 @@ img {
   /* align-items: flex-start; */
   align-items: center;
   /* max-width: 1400px; */
-  padding: 0rem 1rem 1rem;
+  padding: 0rem 12rem 1rem;
   margin-left: 10px;  
   margin: 0 auto;
   z-index: 1;
@@ -616,6 +663,7 @@ img {
   flex-shrink: 0;
   aspect-ratio: unset !important;
   z-index: 0;
+  margin-top: -18px;
 }
 
 /* Room Mockup */
@@ -628,7 +676,7 @@ img {
   flex-shrink: 0;
   margin-left: auto;
   /* margin-top: -200px; */
-  margin-top: auto;
+  margin-top: 40px;
   flex: 0 0 auto; /* Prevent flex shrinkage */
   display: block;
 }
@@ -660,21 +708,22 @@ img {
   flex-direction: column;
   align-items: center; /* Center horizontally */
   justify-content: flex-start;
-  gap: 1.5rem;
-  padding: .5rem;
+  gap: .4rem;
+  padding: .4rem;
   max-width: 300px;
   width: 100%;
   z-index: 10;
   position: relative;
+  
   /* margin-left: 18px; */
 }
 #colorControls h2 {
   width: 100%; /* Match parent width */
   text-align: center; /* Ensure text is centered */
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
   /* margin-left: 40px; */
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+  font-size: 10px;
+  line-height: 1.5rem;
 }
 
 
@@ -689,6 +738,8 @@ img {
 
 /* Pattern Preview */
 #patternPreview {
+    margin-top: -14px;
+    margin-bottom: -14px;
   max-width: 700px;
   min-width: 0;
   width: 100%;
@@ -696,13 +747,21 @@ img {
   text-align: center;
 }
 
-#patternPreview h2,
-#patternName {
-  margin-top: 24px;
+#patternPreview h2
+ {
+  margin-top: 4px;
   font-size: 1rem;
   color: #f0e6d2;
   text-align: center;
   overflow-wrap: break-word;
+}
+#patternName h2{
+  margin-top: 4px;
+  font-size: .5rem;
+  color: #f0e6d2;
+  text-align: center;
+  overflow-wrap: break-word;
+  line-height: 0px;
 }
 
 /* Coordinates Section */
@@ -762,29 +821,25 @@ img {
 
 /* Left Sidebar */
 #leftSidebar {
-  position: flex;
+  position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 220px;
+  width: 180px;
   padding: 8px;
-  z-index: 10;
+  z-index: 30;
   box-shadow: 4px 0 15px rgba(0,0,0,0.3);
-  margin-top: calc(140px + 4rem);
-  margin-right: 0;
-  padding-right: 8px;
+  margin-top: calc(105px + 0rem);
+  margin-right: 100;
+  margin-left: 5px;
   border-color: #4c4c4c;
   border-width: thick;
-  /* display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem; /* gap-2 */
   position: fixed;
   left: 0;
   top: 0;
   height: 100%;
   /* background: rgb(243, 230, 212); */ */
-  padding-right: 8px; /* Minimal padding to avoid overlap */
+  padding-right: 200px; /* Minimal padding to avoid overlap */
 
 }
 
@@ -811,7 +866,7 @@ img {
 #collectionThumbnails {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0rem;
   margin-top: .5rem;
 }
 
@@ -883,19 +938,27 @@ img {
   background-color: #606e74;
 }
 
-.sc-logo {
+/* .sc-logo {
   width: 300px !important;
   height: auto;
   margin-bottom: 20px;
   display: block;
   margin: 0 auto 20px;
 }
-img {
-  max-width: 100%;
-  height: auto;
-  margin: 20px auto;
-  display: block;
+ */
+
+.logo-img {
+    width: 40rem;
+    max-height: 112px;
+    object-fit: contain;
+    margin: 0 auto;
 }
+img {
+    max-width: 100%;
+    height: auto;
+    margin: 18px auto;
+    display: block;
+  }
 
 .print-container {
   text-align: center;
@@ -906,9 +969,15 @@ img {
   align-items: center;
 }
 
+#printButton {
+    margin-top: -20px !important; /* Remove any top margin */
+    padding: -10px; /* Minimal padding, adjust as needed */
+
+}
 #printButton svg {
-  width: 24px;
-  height: 24px;
+    margin-top: 0 !important; /* Remove any top margin */
+    padding: -10px; /* Minimal padding, adjust as needed */
+    width: 24px; /* Adjust size as needed */
   stroke: #b7a451; /* Match your theme */
 }
 
@@ -974,7 +1043,7 @@ img {
 
 .curated-color-container {
   flex: 0 0 auto;
-  margin: 0 -1px; /* Adjust spacing for 100px circles, matching color-flex2.html */
+  margin: 0 -10px; /* Adjust spacing for 100px circles, matching color-flex2.html */
 }
 
 .curated-color-circle {
@@ -1123,7 +1192,7 @@ aside a:hover {
 
 /* Header */
 #header {
-    @apply text-center py-6 col-span-full; /* Increased padding */
+    @apply text-center py-4 col-span-full; /* Increased padding */
 }
 
 /* Curated Colors Container */
@@ -1165,9 +1234,9 @@ aside a:hover {
 
 
 /* Collection Thumbnails */
-#collectionThumbnails {
-    @apply flex flex-col gap-4 mt-4;
-}
+/* #collectionThumbnails {
+    @apply flex flex-col gap-20 mt-4;
+} */
 
 
 
@@ -1180,11 +1249,7 @@ aside a:hover {
   background-color: inherit !important;
   text-align: center;
 }
-.thumbnail img, .coordinate-item img {
-  width: 6rem;
-  height: 6rem;
-  object-fit: cover;
-}
+
 .color-input-container input {
   display: none;
 }
