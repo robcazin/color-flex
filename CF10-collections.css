@@ -1,0 +1,220 @@
+/* CF10-collections.css */
+
+/* Header */
+#mainHeader {
+    background-color: #f1eee7 !important;
+    display: grid !important;
+    grid-template-columns: 1fr minmax(480px, auto) 1fr;
+    align-items: center;
+    gap: 0px;
+    height: 100px;
+    padding: 0.5rem 1rem !important;
+    position: relative; /* Scope absolute positioning */
+    /* Removed overflow: hidden */
+}
+
+#mainHeader > div {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+#mainHeader > div:nth-child(2) {
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.logo-img {
+    width: 40rem;
+    max-height: 112px;
+    object-fit: contain;
+    margin: 0 auto;
+}
+img {
+    max-width: 100%;
+    height: auto;
+    margin: 18px auto;
+    display: block;
+  }
+.flower-pot {
+   
+    margin-left: 20px;
+    margin-bottom: 0px;
+    width: 100px;
+    object-fit: contain;
+  
+}
+
+
+
+#mainHeader .camelionImage {
+    position: absolute;
+    bottom: -50px; /* 60px below header */
+    left: calc(80% - 80px);
+    z-index: 20;
+    max-height: 100px;
+    object-fit: contain;
+}
+
+/* General Body */
+body {
+    font-family: 'Special Elite', cursive;
+    background-color: #1a202c;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.text-center {
+    text-align: center;
+}
+h4, h2 {
+    font-family: "Special Elite", serif;
+    font-weight: 400;
+  }
+
+h5 {
+    font-family: "Island Moments", serif !important;
+    font-weight: 400 !important;
+    font-size: 4rem !important;
+    font-style: normal;
+    margin: auto;
+    padding-top: 20px;
+    padding-bottom: 5%;
+  }
+
+/* Collections Content */
+#collectionsContent {
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* Grid of Collection Cards */
+.collection-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+/* Individual Collection Card */
+.collection-item {
+    cursor: pointer;
+    border: 1px solid #d4af37; /* Gold border */
+    transition: border-color 0.3s;
+    text-align: center;
+    height: 270px; /* Consistent height */
+    align-content: center;
+}
+
+/* Hover Effect */
+.collection-item:hover {
+    border-color: rgb(244, 255, 219);
+
+}
+
+/* Thumbnail Container */
+.thumbnail-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Thumbnail Image */
+.collection-item img.thumbnail {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    max-height: 220px;
+    object-fit: scale-down;
+    display: block;
+    margin: 0 auto;
+    padding: 0 5px; /* Side padding for tall images */
+    box-sizing: border-box;
+}
+
+/* Name with Label Background */
+.collection-item h2 {
+    margin: 0;
+    padding: 10px;
+    background-image: url('./img/collection-label.png');
+    background-size:  100% 100%;;
+    background-repeat: no-repeat; 
+    background-position: center;
+    position: absolute;
+    bottom: 0; /* Align to image bottom */
+    transform: translateY(50%); /* Overlap half label height */
+    width: 68%;
+    left: 10%;
+    color: #000;
+    font-size: 14px;
+    line-height: 1.8;
+    z-index: 2;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.5); /* Add shadow to label */
+
+}
+
+
+
+/* General */
+body {
+    font-family: 'Special Elite';
+    background-color: #1a202c; /* Match CF8â€™s bg-gray-900 */
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+/* Animation Keyframes */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Apply Animations */
+.collection-item {
+    opacity: 0; /* Start hidden */
+    animation: fadeUp 0.6s ease-out forwards;
+    /* Delay will be set via JavaScript for stagger */
+}
+
+#mainHeader {
+    opacity: 0; /* Start hidden */
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+    .collection-item,
+    #mainHeader {
+        opacity: 1;
+        animation: none;
+    }
+}
+
+/* Enhance Hover Effect (Optional, to complement animation) */
+.collection-item:hover .thumbnail-container {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+#patternPreviewWrapper {
+    position: relative;
+    top: 0;
+    max-height: 700px; /* Match #preview height */
+}
