@@ -8,6 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <title>Wallpaper Customizer</title>
     <link href="CF10.css" rel="stylesheet">
+    <link href="test.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,58 +42,49 @@
                 <!-- Thumbnails -->
             </div>
         </aside>
-        <main id="mainContent" class="grid grid-cols-[minmax(700px,1fr)_minmax(220px,1fr)_minmax(600px,1fr)] justify-center items-start max-w-[1400px] mx-auto p-4 gap-20">
-            <section id="previewMockupContainer" class="contents w-full">
-                <div id="patternPreviewWrapper" class="flex-grow-0 flex-shrink-0 max-w-[700px] w-full">
-                    <div id="patternPreview" class="max-w-[700px] w-full flex-shrink-0 text-center">
-                        <h2 class="font-special-elite">Pattern Preview</h2>
-                        <div id="preview" class="w-[700px] h-[700px] overflow-hidden relative z-0 flex-shrink-0 bg-[#434341]">
-                            <canvas id="patternCanvas" width="700" height="700" class="absolute top-0 left-0"></canvas>
-                        </div>
-                        <h2 id="patternName" class="text-[#f0e6d2] text-center break-words font-special-elite">Farm Toile</h2>
-                        <button id="printButton" class="py-4" aria-label="Print Pattern" data-tooltip="Click to print this pattern">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                <rect x="6" y="14" width="12" height="8"></rect>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </section>
-            <div id="colorControls" class="flex flex-col">
-                <h2 class="text-center font-special-elite">Color Layers</h2>
-                <div id="layerInputsContainer" class="grid"></div>
-            </div>
-            <div class="col-start-3 flex flex-col items-center">
-                <div id="roomMockupWrapper" class="flex-grow-0 flex-shrink-0 max-w-[600px] w-full">
-                    <div id="roomMockupPreview" class="max-w-[600px] w-full flex-shrink-0 text-center">
-                        <h2 class="font-special-elite">Room Mockup Preview</h2>
-                    </div>
-                <!-- <h2 class="font-special-elite">Room Mockup</h2> -->
-                <div id="preview" class="relative overflow-hidden">
-                <canvas
-                    id="patternCanvas"
-                    class="absolute top-0 left-0 block"
-                    style="width: auto; height: auto;"
-                ></canvas>
-                </div>
+    <main id="mainContent" class="grid grid-cols-[minmax(700px,1fr)_minmax(220px,1fr)_minmax(600px,1fr)] justify-center items-start max-w-[1400px] mx-auto p-4 gap-20">
+    <!-- Pattern Preview Section -->
+    <section id="previewMockupContainer" class="contents w-full">
+        <div id="patternPreviewWrapper" class="flex-grow-0 flex-shrink-0 max-w-[700px] w-full">
+        <div id="patternPreview" class="max-w-[700px] w-full flex-shrink-0 text-center">
+            <h2 class="font-special-elite">Pattern Preview</h2>
+            <div id="preview" class="w-[700px] h-[700px] overflow-hidden relative z-0 flex-shrink-0 bg-[#434341]"></div>
+            <h2 id="patternName" class="text-[#f0e6d2] text-center break-words font-special-elite">Pattern Name</h2>
+            <button id="printButton" class="py-4" aria-label="Print Pattern" data-tooltip="Click to print this pattern">
+            <!-- SVG icon -->
+            </button>
+        </div>
+        </div>
+    </section>
 
+    <!-- Color Controls Section -->
+    <div id="colorControls" class="flex flex-col">
+        <h2 class="text-center font-special-elite">Color Layers</h2>
+        <div id="layerInputsContainer" class="grid"></div>
+    </div>
 
-                <div id="roomMockup" class="w-[600px] max-w-[600px] h-[450px] overflow-hidden relative flex-shrink-0"></div>
-                <div id="scaleControls" class="flex justify-center gap-2 mt-2 max-w-[600px]">
-                    <button data-scale="1" class="scale-btn px-2 py-1 text-sm !bg-gray-200 hover:bg-gray-300 rounded font-special-elite active-scale">Normal</button>
-                    <button data-scale="0.5" class="scale-btn px-2 py-1 text-sm !bg-gray-200 hover:bg-gray-300 rounded font-special-elite">2X</button>
-                    <button data-scale="0.25" class="scale-btn px-2 py-1 text-sm !bg-gray-200 hover:bg-gray-300 rounded font-special-elite">3X</button>
-                    <button data-scale="0.125" class="scale-btn px-2 py-1 text-sm !bg-gray-200 hover:bg-gray-300 rounded font-special-elite">4X</button>
-                </div>
-        
-                <section id="coordinatesSection" class="flex flex-col items-center p-4 text-center w-full">
-                    <h3 class="font-island-moments">Matching Coordinates</h3>
-                    <div id="coordinatesContainer" class="flex justify-center items-center relative w-full min-h-[300px] overflow-visible max-w-[600px]"></div>
-                </section>
-            </div>
-        </main>
+    <!-- Room Mockup Section -->
+    <div class="col-start-3 flex flex-col items-center">
+        <div id="roomMockupWrapper" class="flex-grow-0 flex-shrink-0 max-w-[600px] w-full">
+        <div id="roomMockupPreview" class="max-w-[600px] w-full flex-shrink-0 text-center">
+            <h2 class="font-special-elite">Room Mockup Preview</h2>
+        </div>
+        <div id="roomMockup" class="w-[600px] max-w-[600px] h-[450px] overflow-hidden relative flex-shrink-0"></div>
+
+        <div id="scaleControls" class="flex justify-center gap-2 mt-2 max-w-[600px]">
+            <button data-scale="1" class="scale-btn px-2 py-1 text-sm !bg-gray-200 hover:bg-gray-300 rounded font-special-elite active-scale">Normal</button>
+            <button data-scale="0.5" class="scale-btn px-2 py-1 text-sm !bg-gray-200 hover:bg-gray-300 rounded font-special-elite">2X</button>
+            <button data-scale="0.25" class="scale-btn px-2 py-1 text-sm !bg-gray-200 hover:bg-gray-300 rounded font-special-elite">3X</button>
+            <button data-scale="0.125" class="scale-btn px-2 py-1 text-sm !bg-gray-200 hover:bg-gray-300 rounded font-special-elite">4X</button>
+        </div>
+
+        <section id="coordinatesSection" class="flex flex-col items-center p-4 text-center w-full">
+            <h3 class="font-island-moments">Matching Coordinates</h3>
+            <div id="coordinatesContainer" class="flex justify-center items-center relative w-full min-h-[300px] overflow-visible max-w-[600px]"></div>
+        </section>
+        </div>
+    </div>
+    </main>
     </div>
 
     <!-- Custom Popup Modal -->
