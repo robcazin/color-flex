@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# SCP command base and destination
+SCP="scp -P 2222 -i ../code-build/deploy_key"
+DEST="soanimat@162.241.24.65:/home4/soanimat/public_html/CF8/"
+JDEST="soanimat@162.241.24.65:/home4/soanimat/public_html/CF8/data/"
+
+
+# Check if an argument is provided, otherwise show usage
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 [-c | -all]"
+    echo "  -c    Push only CF9.css"
+    echo "  -all  Push all files (CF9.js, CF9.html, CF9.css)"
+    exit 1
+fi
+
+# Handle flags
+case "$1" in
+    -c)
+        echo "Pushing CF9.css..."
+        $SCP CFM-merged.css $DEST
+        $SCP CFM-collections.css $DEST
+        ;;
+    -j)
+        echo "Pushing JSON files..."
+        $SCP ./data/colors.json $JDEST
+        $SCP ./data/local-collections.json $JDEST
+        ;;
+    -all)
+        echo "Pushing all files..."
+        $SCP CFM.js $DEST
+        $SCP index.html $DEST
+        $SCP CFM-merged.css $DEST
+        $SCP CFM-collections.html $DEST
+        $SCP CFM-collections.css $DEST
+        ;;
+    *)
+        echo "Invalid flag: $1"
+        echo "Use: $0 [-c | -all]"
+        exit 1
+        ;;
+esac
+
+echo "Done!"

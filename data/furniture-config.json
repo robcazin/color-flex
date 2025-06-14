@@ -1,0 +1,11 @@
+{
+  "sofa-capitol": {
+    "name": "Capitol Sofa",
+    "mockup": "data/furniture/sofa-capitol/sofa-capitol.png",
+    "wallMask": "data/furniture/sofa-capitol/sofa-capitol-wall-mask.png",
+    "base": "data/furniture/sofa-capitol/sofa-capitol-base.png",
+    "extras": "data/furniture/sofa-capitol/sofa-capitol-extras2.png",
+    "shadowOverlay": null,
+    "compatibleCollections": ["botanicals"]
+  }
+}
