@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose a Collection</title>
+    <link rel="stylesheet" href="CFM-collections.css">
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Island+Moments&family=Special+Elite&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <header id="mainHeader" class="relative px-8 w-full bg-[#f1eee7]">
+        <div><img src="./img/logo-flower-pot.png" class="flower-pot" alt="Flower Pot"></div>
+        <div><img src="./img/SC-header-mage.jpg" class="logo-img" alt="Logo"></div>
+        <div><img src="./img/camelion.png" class="camelionImage" alt="Camelion"></div>
+    </header>
+
+    <div id="collectionsContent">
+        <h5 class="text-center py-2 mb-1">Saffron Cottage Collections</h5>
+        <div id="collectionList" class="collection-list"></div>
+    </div>
+
+    <script>
+        async function loadCollections() {
+    try {
+        const response = await fetch("./data/local-collections.json");
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        const collections = data.collections;
+
+        const collectionList = document.getElementById("collectionList");
+        collections.forEach(collection => {
+            // Skip the "coordinates" collection
+            if (collection.name.toLowerCase() === "coordinates") return;
+
+            const div = document.createElement("div");
+            div.className = "collection-item";
+            div.innerHTML = `
+                <div class="thumbnail-container">
+                    <img src="${collection.collection_thumbnail}" alt="${collection.name}" class="thumbnail">
+                    <h2>${collection.name.toUpperCase()}</h2>
+                </div>
+            `;
+            div.addEventListener("click", () => {
+                window.location.href = `index.html?collection=${encodeURIComponent(collection.name)}`;
+            });
+            collectionList.appendChild(div);
+        });
+
+    } catch (error) {
+        console.error("Error loading collections:", error);
+        document.getElementById("collectionList").textContent = "Failed to load collections.";
+    }
+}
+
+loadCollections();
+
+// In your collections page
+async function checkFurnitureAvailable(collectionName) {
+  try {
+    const response = await fetch(`data/furniture/sofa-capitol/patterns/${collectionName}-summary.json`);
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (e) {
+    // No furniture renders for this collection
+  }
+  return null;
+}
+    </script>
+
+</body>
+</html>
